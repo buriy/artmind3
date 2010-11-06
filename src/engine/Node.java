@@ -5,33 +5,48 @@
 
 package engine;
 
+import java.util.Random;
+
 /**
  *
  * @author dimko
  */
-public class Node<T> {
-    Field<T> input_field;
-    Field<Boolean> output_field;
+public class Node {
+    IntField input_field;
+    IntField output_field;
     Options opt;
     Sensor[] sensors;
-    int quantity;
+	NeuronCollection neurons;
+	private Random rand;
 
-    Node(Field<T> input_field, Field<Boolean> output_field, Options opt){
+    Node(IntField input_field, IntField output_field, Options opt){
         this.input_field = input_field;
         this.output_field = output_field;
         this.opt = opt;
-        this.sensors = new Sensor[this.opt.SENSORS_COUNT];
-        this.quantity = this.opt.SENSORS_QUANTITY;
-        int items = this.input_field.size;
-        for(int i = 0; i < this.opt.SENSORS_COUNT; ++i){
-            sensors[i] = Sensor(Utils.sample(items, quantity));
-        }
+        rand = new Random();
+        create_sensors();
+        this.neurons = new NeuronCollection(opt, output_field);
     }
 
-   void sensory(){
-        T[] sensor_field = new T[this.sensors.length]();
-        for(int i = 0; i < sensor_field.length; ++i){
-
+	private void create_sensors() {
+		int sensor_inputs = this.opt.SENSORS_QUANTITY;
+        sensors = new Sensor[this.opt.SENSORS_COUNT];
+        for(int i = 0; i < this.opt.SENSORS_COUNT; ++i){
+            sensors[i] = new Sensor(input_field, sensor_inputs, rand);
         }
+	}
+
+
+   int[] sensory(){
+        int[] values = new int[sensors.length];
+        for(int i = 0; i < values.length; ++i){
+        	values[i] = sensors[i].sum();
+        }
+        return Utils.binarize(values, this.opt.SENSOR_TO_PATTERNS_WINNERS());
    }
+
+	public State operate() {
+        int[] bits = sensory();
+        return neurons.operate(bits);
+	}
 }

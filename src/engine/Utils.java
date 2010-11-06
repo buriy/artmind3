@@ -5,8 +5,9 @@
 
 package engine;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Random;
 
@@ -15,17 +16,27 @@ import java.util.Random;
  * @author dimko
  */
 public class Utils {
-    public static int[] binarize(ArrayList<Integer> sensors, int winners){
-        // gets 'winners' winners from sensors, by max values
-        return null;
+    public static int[] binarize(final int[] values, int quantity){
+    	Integer[] ids = new Integer[values.length];
+    	for(int i=0; i<ids.length; i++)
+    		ids[i] = i;
+    	Arrays.sort(ids, new Comparator<Integer>(){
+    		@Override
+    		public int compare(Integer lhs, Integer rhs) {
+    			return values[rhs] - values[lhs];
+    		}
+    	});
+    	int[] winners = new int[quantity];
+    	for(int i=0; i<winners.length; i++){
+    		winners[i] = ids[i];
+    	}
+		return winners;
     }
 
-    public static Collection sample(int count, int quantity){
-        Random rand = new Random();
-        HashSet values = new HashSet();
+    public static Collection<Integer> sample(int count, int quantity, Random rand){
+        HashSet<Integer> values = new HashSet<Integer>();
         while(values.size() < quantity){
-            Object element = rand.nextInt(count);
-            values.add(element);
+            values.add(rand.nextInt(count));
         }
         return values;
     }
