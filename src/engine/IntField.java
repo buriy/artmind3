@@ -5,7 +5,7 @@ package engine;
  *
  * @author dimko
  */
-public class IntField {
+public class IntField{
     int size;
     int width;
     int height;

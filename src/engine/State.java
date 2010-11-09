@@ -11,5 +11,5 @@ package engine;
  * @author dimko
  */
 public enum State {
-    TRAIN, RESTART, LEARNED;
+	RESTART, TRAIN, LEARNED;
 }

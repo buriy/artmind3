@@ -6,7 +6,6 @@
 package engine;
 
 import java.util.Collection;
-import java.util.Random;
 
 /**
  *
@@ -16,14 +15,18 @@ public class Sensor {
 	private int[] samples;
 	private final IntField field;
 
-	public Sensor(IntField field, int quantity, Random rand) {
+	public Sensor(IntField field, int quantity) {
 		this.field = field;
-		Collection<Integer> sample = Utils.sample(field.size, quantity, rand);
+		Collection<Integer> sample = Utils.sample(field.size, quantity);
 		this.samples = new int[quantity];
 		int i=0;
 		for (Integer value : sample) {
 			this.samples[i++] = value;
 		}
+	}
+
+	public void replace_sample(int position, int value) {
+		this.samples[position] = value;
 	}
 
 	public int sum() {

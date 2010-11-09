@@ -9,7 +9,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
-import java.util.Random;
 
 /**
  *
@@ -33,10 +32,10 @@ public class Utils {
 		return winners;
     }
 
-    public static Collection<Integer> sample(int count, int quantity, Random rand){
+    public static Collection<Integer> sample(int count, int quantity){
         HashSet<Integer> values = new HashSet<Integer>();
         while(values.size() < quantity){
-            values.add(rand.nextInt(count));
+            values.add(Rand.nextInt(count));
         }
         return values;
     }

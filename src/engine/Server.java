@@ -29,12 +29,15 @@ class Server {
 		BufferedWriter out = new BufferedWriter(new OutputStreamWriter(
 				client.getOutputStream()));
 
-		while (command(in, out));
+		while (command(in, out))
+			;
 	}
 
-	public boolean command(BufferedReader in, BufferedWriter out) throws IOException {
+	public boolean command(BufferedReader in, BufferedWriter out)
+			throws IOException {
 		String response = in.readLine();
-		if(response == null) return false;
+		if (response == null)
+			return false;
 		String[] command = response.split(" ");
 		if ("TRAIN".equals(command[0])) {
 			State state = train(command, in);
@@ -47,7 +50,7 @@ class Server {
 			}
 		} else if ("TEST".equals(command[0])) {
 			String value = test(command, in);
-			out.append("RESULT " + value+"\n");
+			out.append("RESULT " + value + "\n");
 			out.flush();
 		} else if ("OPTIONS".equals(command[0])) {
 			Options options = new Options();
@@ -60,9 +63,8 @@ class Server {
 	private State train(String[] command, BufferedReader in) throws IOException {
 		if ("chars".equals(command[1])) {
 			int[] data = readData(command, in);
-			network.set_input(data);
-			// String supervised = command[4];
-			return network.operate();
+			String supervised = command[4];
+			return network.train(data, supervised);
 		}
 		return State.TRAIN;
 	}
@@ -71,9 +73,8 @@ class Server {
 		if ("chars".equals(command[1])) {
 			int[] data = readData(command, in);
 			// slot = Integer.parseInt(command[4]);
-			network.set_input(data);
-			network.operate();
-			return "SOMEVALUE";
+			String value = network.run(data);
+			return value.replace('\n',' ');
 		}
 		return null;
 	}

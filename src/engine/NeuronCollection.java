@@ -6,7 +6,6 @@
 package engine;
 
 import java.util.Collection;
-import java.util.Random;
 
 
 /**
@@ -21,10 +20,12 @@ public class NeuronCollection {
 	private boolean learning;
 	private int max_learned;
 	SampleSet[][] patterns;
-	private Random rand;
 
+	public boolean isLearning() {
+		return learning;
+	}
+	
 	public NeuronCollection(Options opt, IntField output_field) {
-		rand = new Random();
 		patterns = new SampleSet[opt.SENSORS_COUNT][opt.NEURONS_PER_SENSOR];
 		for (int i = 0; i < opt.SENSORS_COUNT; i++) {
 			for (int j = 0; j < opt.NEURONS_PER_SENSOR; j++) {
@@ -73,7 +74,7 @@ public class NeuronCollection {
 			int neur = opt.NEURONS_PER_SENSOR;
 			int neigh = opt.NEURON_NEIGHBOURS;
 			for (int i = 0; i < bits.length; i++) {
-				int nextInt = rand.nextInt(neur);
+				int nextInt = Rand.nextInt(neur);
 				SampleSet sampleSet = patterns[bits[i]][nextInt];
 				int[] pattern = extractN(neigh);
 				boolean found = sampleSet.find(pattern);
@@ -89,7 +90,7 @@ public class NeuronCollection {
 	}
 
 	private int[] extractN(int neigh) {
-		Collection<Integer> sample = Utils.sample(last_bits.length, neigh, rand);
+		Collection<Integer> sample = Utils.sample(last_bits.length, neigh);
 		int[] pattern = new int[neigh];
 		int pos = 0;
 		for (Integer integer : sample) {

@@ -10,8 +10,9 @@ package engine;
  * @author dimko
  */
 public class Options {
-    final int SUPERVISED_SENSORS_COUNT = 128;
-    final int SUPERVISED_SENSORS_QUANTITY = 80;
+    final int MAX_RECOGNIZED_TYPES = 128;
+    final int SUPERVISED_SENSORS_COUNT = 1024;
+    final int SUPERVISED_SENSORS_QUANTITY = 1;
     final int SENSORS_COUNT = 128;
     final int SENSORS_QUANTITY = 80;
     final double SENSORS_TO_PATTERNS = 0.125;
