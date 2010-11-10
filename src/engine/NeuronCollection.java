@@ -5,7 +5,10 @@
 
 package engine;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
 
 
 /**
@@ -58,9 +61,11 @@ public class NeuronCollection {
 
 	private void run(int[] bits) {
 		output_field.reset();
+		HashSet<Integer> search = Utils.toHashSet(last_bits);
+		
 		for (int i = 0; i < bits.length; ++i) {
 			for (int j = 0; j < opt.NEURONS_PER_SENSOR; ++j) {
-				if (patterns[bits[i]][j].find(last_bits)) {
+				if (patterns[bits[i]][j].findAny(search)) {
 					output_field.set(bits[i], j, 1);
 				}
 			}
@@ -70,14 +75,16 @@ public class NeuronCollection {
 
 	private void train(int[] bits) {
 		if(last_bits != null){
+//			HashSet<Integer> search = Utils.toHashSet(last_bits);
 			int maxSamples = opt.SAMPLES_PER_NEURON;
 			int neur = opt.NEURONS_PER_SENSOR;
 			int neigh = opt.NEURON_NEIGHBOURS;
 			for (int i = 0; i < bits.length; i++) {
 				int nextInt = Rand.nextInt(neur);
 				SampleSet sampleSet = patterns[bits[i]][nextInt];
-				int[] pattern = extractN(neigh);
-				boolean found = sampleSet.find(pattern);
+				int[] pattern = extractN(last_bits, neigh);
+//				boolean found = sampleSet.findAny(search);
+				boolean found = sampleSet.findExact(pattern);
 				if(!found){
 					if(sampleSet.size() < maxSamples){
 						sampleSet.add(pattern);
@@ -89,12 +96,12 @@ public class NeuronCollection {
 		last_bits = bits;
 	}
 
-	private int[] extractN(int neigh) {
-		Collection<Integer> sample = Utils.sample(last_bits.length, neigh);
+	private int[] extractN(int[] source, int neigh) {
+		Collection<Integer> sample = Utils.sample(source.length, neigh);
 		int[] pattern = new int[neigh];
 		int pos = 0;
 		for (Integer integer : sample) {
-			pattern[pos++] = last_bits[integer];
+			pattern[pos++] = source[integer];
 		}
 		return pattern;
 	}

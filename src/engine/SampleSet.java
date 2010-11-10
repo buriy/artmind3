@@ -1,6 +1,8 @@
 package engine;
 
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
 
 public class SampleSet {
 	int[][] values;
@@ -13,16 +15,32 @@ public class SampleSet {
 		size = 0;
 	}
 
-	boolean find(int[] pattern) {
+	public boolean findAny(HashSet<Integer> pattern) {
+		for (int i = 0; i < size; ++i) {
+			int matches = 0;
+			for (int j = 0; j < width; j++) {
+				if(pattern.contains(values[i][j])){
+					matches += 1;
+					if(matches == width)
+						return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	boolean findExact(int[] pattern) {
 		for (int i = 0; i < size; ++i) {
 			int matches = 0;
 			for (int j = 0; j < pattern.length; j++) {
+				int testing = pattern[j];
 				for (int k = 0; k < width; k++) {
-					if(pattern[j] == values[i][k]){
+					if(testing == values[i][k]){
 						matches += 1;
 						break;
 					}
 				}
+				if(matches != j) break;
 			}
 			if(matches == width)
 				return true;

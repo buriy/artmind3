@@ -15,9 +15,19 @@ public class StringField {
 
 	@Override
 	public String toString() {
-		StringBuilder result = new StringBuilder("(\n");
+		StringBuilder result = new StringBuilder("");
+		Set<Entry<String,Double>> entries = data.entrySet();
+		double maxValue = 0;
+		String maxKey = "";
+		for (Entry<String, Double> entry : entries) {
+			if(entry.getValue() > maxValue){
+				maxValue = entry.getValue();
+				maxKey = entry.getKey();
+			}
+		}
+		result.append(maxKey+"\n");
+		result.append("(\n");
 		DecimalFormat df = new DecimalFormat("#.#");
-		Set<Entry<String, Double>> entries = data.entrySet();
 		for (Entry<String, Double> entry : entries) {
 			double value = entry.getValue().doubleValue();
 			result.append("  " + entry.getKey() + "=");
