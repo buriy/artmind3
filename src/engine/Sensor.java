@@ -13,11 +13,11 @@ import java.util.Collection;
  */
 public class Sensor {
 	private int[] samples;
-	private final IntField field;
+	private final Field field;
 
-	public Sensor(IntField field, int quantity) {
+	public Sensor(Field field, int quantity) {
 		this.field = field;
-		Collection<Integer> sample = Utils.sample(field.size, quantity);
+		Collection<Integer> sample = Utils.sample(field.getSize(), quantity);
 		this.samples = new int[quantity];
 		int i=0;
 		for (Integer value : sample) {

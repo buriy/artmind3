@@ -13,6 +13,8 @@ public class Main {
 			server.serve();
 		} catch (IOException e) {
 			e.printStackTrace();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
 		}
     }
 }

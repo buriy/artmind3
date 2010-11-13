@@ -1,12 +1,12 @@
 package engine;
 
 public class Node {
-	protected IntField input_field;
+	protected Field input_field;
 	protected Options opt;
 	protected Sensor[] sensors;
 	protected int learnTime;
 
-	public Node(IntField input_field, Options opt) {
+	public Node(Field input_field, Options opt) {
         this.input_field = input_field;
         this.opt = opt;
         create_sensors();

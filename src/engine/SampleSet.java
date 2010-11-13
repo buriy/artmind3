@@ -2,7 +2,6 @@ package engine;
 
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 
 public class SampleSet {
 	int[][] values;

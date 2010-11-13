@@ -21,7 +21,7 @@ public class Options {
     final int SENSORS_QUANTITY = 80;
     final double SENSORS_TO_PATTERNS = 0.125;
     final int NEURONS_PER_SENSOR = 8;
-    final int SAMPLES_PER_NEURON = 80;
+    final int SAMPLES_PER_NEURON = 100;
     final int NEURON_NEIGHBOURS = 3;
         
     public int SENSOR_TO_PATTERNS_WINNERS(){

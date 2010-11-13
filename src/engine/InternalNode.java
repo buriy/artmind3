@@ -12,9 +12,9 @@ package engine;
  */
 public class InternalNode extends Node {
     NeuronCollection neurons;
-	protected IntField output_field;
+	protected Field output_field;
 
-    public InternalNode(IntField input_field, IntField output_field, Options opt){
+    public InternalNode(Field input_field, Field output_field, Options opt){
     	super(input_field, opt);
     	this.output_field = output_field;
         this.neurons = new NeuronCollection(opt, output_field);

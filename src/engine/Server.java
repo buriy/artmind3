@@ -8,6 +8,8 @@ import java.io.OutputStreamWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import util.Base64;
+
 class Server {
 	private ServerSocket server;
 	private int port;
@@ -15,14 +17,10 @@ class Server {
 
 	public Server(int port) {
 		this.port = port;
-		try {
-			this.server = new ServerSocket(this.port);
-		} catch (IOException ex) {
-			ex.printStackTrace();
-		}
 	}
 
-	public void serve() throws IOException {
+	public void serve() throws IOException, InterruptedException {
+		this.server = new ServerSocket(this.port);
 		Socket client = this.server.accept();
 		BufferedReader in = new BufferedReader(new InputStreamReader(
 				client.getInputStream()));
@@ -31,6 +29,9 @@ class Server {
 
 		while (command(in, out))
 			;
+		Thread.sleep(500);
+        server.close();
+        System.out.println("Exiting");
 	}
 
 	public boolean command(BufferedReader in, BufferedWriter out)
@@ -39,39 +40,43 @@ class Server {
 		if (response == null)
 			return false;
 		String[] command = response.split(" ");
-		if ("TRAIN".equals(command[0])) {
-			State state = train(command, in);
-			if (state == State.RESTART) {
-				out.append("RESTART\n");
+		try{
+			if ("TRAIN".equals(command[0])) {
+				State state = train(command, in);
+				if (state == State.RESTART) {
+					out.append("RESTART\n");
+					out.flush();
+				} else if (state == State.LEARNED) {
+					out.append("LEARNED\n");
+					out.flush();
+				}
+			} else if ("TEST".equals(command[0])) {
+				String value = test(command, in);
+				out.append("RESULT " + value + "\n");
 				out.flush();
-			} else if (state == State.LEARNED) {
-				out.append("LEARNED\n");
-				out.flush();
+			} else if ("OPTIONS".equals(command[0])) {
+				Options options = new Options();
+				this.network = new Network(options);
+				System.out.println("Network created!");
 			}
-		} else if ("TEST".equals(command[0])) {
-			String value = test(command, in);
-			out.append("RESULT " + value + "\n");
-			out.flush();
-		} else if ("OPTIONS".equals(command[0])) {
-			Options options = new Options();
-			this.network = new Network(options);
-			System.out.println("Network created!");
+		}catch(UnsupportedDataException ude){
+			System.err.println(ude);
 		}
 		return true;
 	}
 
-	private State train(String[] command, BufferedReader in) throws IOException {
+	private State train(String[] command, BufferedReader in) throws IOException, UnsupportedDataException {
 		if ("chars".equals(command[1])) {
-			int[] data = readData(command, in);
+			byte[] data = readData(command, in);
 			String supervised = command[4];
 			return network.train(data, supervised);
 		}
 		return State.TRAIN;
 	}
 
-	private String test(String[] command, BufferedReader in) throws IOException {
+	private String test(String[] command, BufferedReader in) throws IOException, UnsupportedDataException {
 		if ("chars".equals(command[1])) {
-			int[] data = readData(command, in);
+			byte[] data = readData(command, in);
 			// slot = Integer.parseInt(command[4]);
 			String value = network.run(data);
 			return value.replace('\n',' ');
@@ -79,17 +84,13 @@ class Server {
 		return null;
 	}
 
-	private int[] readData(String[] command, BufferedReader in)
-			throws IOException {
+	private byte[] readData(String[] command, BufferedReader in)
+			throws IOException, UnsupportedDataException {
 		int width = Integer.parseInt(command[2]);
 		int height = Integer.parseInt(command[3]);
-		int[] matrix = new int[width * height];
-		int pos = 0;
-		for (int h = 0; h < height; h++) {
-			for (int w = 0; w < width; w++) {
-				matrix[pos++] = in.read() & 0xFF;
-			}
-		}
+		byte[] matrix = Base64.decode(in.readLine().replace("!", "\n"));
+		if(width * height != matrix.length)
+			throw new UnsupportedDataException("Expected matrix of "+width+"*"+height+", got "+matrix.length+" instead.");
 		return matrix;
 	}
 }

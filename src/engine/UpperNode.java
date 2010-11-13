@@ -7,7 +7,7 @@ public class UpperNode extends Node{
 	private StringField output_field;
 	private TreeMap<String, double[]> types;
 
-	public UpperNode(IntField input_field, StringField output_field, Options opt) {
+	public UpperNode(Field input_field, StringField output_field, Options opt) {
 		super(input_field, opt);
 		this.output_field = output_field;
 		this.types = new TreeMap<String, double[]>();

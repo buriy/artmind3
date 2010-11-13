@@ -5,10 +5,8 @@
 
 package engine;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 
 
 /**
@@ -17,7 +15,7 @@ import java.util.List;
  */
 public class NeuronCollection {
 	private final Options opt;
-	private final IntField output_field;
+	private final Field output_field;
 	private int[] last_bits;
 	private int learned;
 	private boolean learning;
@@ -28,7 +26,7 @@ public class NeuronCollection {
 		return learning;
 	}
 	
-	public NeuronCollection(Options opt, IntField output_field) {
+	public NeuronCollection(Options opt, Field output_field) {
 		patterns = new SampleSet[opt.SENSORS_COUNT][opt.NEURONS_PER_SENSOR];
 		for (int i = 0; i < opt.SENSORS_COUNT; i++) {
 			for (int j = 0; j < opt.NEURONS_PER_SENSOR; j++) {

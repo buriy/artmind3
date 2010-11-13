@@ -5,7 +5,7 @@ package engine;
  *
  * @author dimko
  */
-public class IntField{
+public class IntField implements Field{
     int size;
     int width;
     int height;
@@ -18,7 +18,6 @@ public class IntField{
     	this.data = new int[size];
 	}
     
-    @Override
     public String toString(){
     	StringBuilder result = new StringBuilder("(");
         for (int i = 0; i < height; i++) {
@@ -48,5 +47,9 @@ public class IntField{
 
 	public void set(int x, int y, int value) {
 		data[y*width + x] = value;
+	}
+
+	public int getSize() {
+		return size;
 	}
 }

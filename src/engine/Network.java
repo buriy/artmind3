@@ -10,25 +10,25 @@ package engine;
  * @author dimko
  */
 public class Network {
-	private IntField field1;
-	private IntField field2;
-	private IntField field3;
+	private ByteField field1;
+	private Field field2;
+	private Field field3;
 	private StringField field4;
 	private InternalNode nodes1;
 	private InternalNode nodes2;
 	private UpperNode nodes3;
 
 	public Network(Options options){
-        this.field1 = new IntField(32, 32);
-        this.field2 = new IntField(128, 8);
-        this.field3 = new IntField(128, 8);
+        this.field1 = new ByteField(32, 32);
+        this.field2 = new ByteField(options.SENSORS_COUNT, options.NEURONS_PER_SENSOR);
+        this.field3 = new ByteField(options.SENSORS_COUNT, options.NEURONS_PER_SENSOR);
         this.field4 = new StringField();
         this.nodes1 = new InternalNode(this.field1, this.field2, options);
         this.nodes2 = new InternalNode(this.field2, this.field3, options);
         this.nodes3 = new UpperNode(this.field3, this.field4, options);
     }
 	
-	public State train(int[] data, String supervised){
+	public State train(byte[] data, String supervised){
         State state1 = nodes1.operate();
         State state2 = State.TRAIN;
         State state3 = State.TRAIN;
@@ -54,7 +54,7 @@ public class Network {
         return State.values()[min3];
 	}
 
-	public String run(int[] data) {
+	public String run(byte[] data) {
 		field1.data = data;
 		nodes1.operate();
 		nodes2.operate();
