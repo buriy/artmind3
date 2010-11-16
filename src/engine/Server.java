@@ -31,7 +31,7 @@ class Server {
 			;
 		Thread.sleep(500);
         server.close();
-        System.out.println("Exiting");
+        System.out.println("Work completed.");
 	}
 
 	public boolean command(BufferedReader in, BufferedWriter out)

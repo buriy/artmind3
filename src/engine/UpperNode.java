@@ -24,6 +24,20 @@ public class UpperNode extends Node{
 		    }
 		}
 	}
+
+	public State train(int maxLearnTime, String supervised){
+		int timeLeft = maxLearnTime - learnTime();
+		if(timeLeft >= 0){
+			incLearnTime();
+			if(timeLeft == 0){
+	    		return State.RESTART;
+			}
+			learn(supervised);
+    		return State.TRAIN;
+    	}else {
+    		return State.LEARNED;
+    	}
+	}
 	
 	public State operate() {
 		int[] active_bits = sensory();
@@ -39,8 +53,7 @@ public class UpperNode extends Node{
 		return State.LEARNED;
 	}
 
-	public void train(String supervised) {
-		incLearnTime();
+	public void learn(String supervised) {
 		int[] active_bits = sensory();
 		int sensor_count = this.opt.SUPERVISED_SENSORS_COUNT;
 		double[] array = types.get(supervised);
