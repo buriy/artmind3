@@ -1,39 +1,99 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package engine;
 
-import java.util.Collection;
-
-/**
- *
- * @author dimko
- */
 public class Sensor {
-	private int[] samples;
+	private int[] permanence;
 	private final Field field;
 
-	public Sensor(Field field, int quantity) {
-		this.field = field;
-		Collection<Integer> sample = Utils.sample(field.getSize(), quantity);
-		this.samples = new int[quantity];
-		int i=0;
-		for (Integer value : sample) {
-			this.samples[i++] = value;
-		}
-	}
+	double boost;
+	private final Options opt;
+	private double activeDutyCycle;
+	private double overlapDutyCycle;
 
-	public void replace_sample(int position, int value) {
-		this.samples[position] = value;
+	public Sensor(Options opt, Field field) {
+		this.activeDutyCycle = 0;
+		this.field = field;
+		this.opt = opt;
+		this.permanence = new int[field.size()];
+		for (int i = 0; i < permanence.length; i++) {
+			permanence[i] = Rand.range(100);
+		}
+		boost = 1;
 	}
 
 	public int sum() {
-		int value = 0;
-		for (int item : samples) {
-			value += field.get(item);
+		int overlap = 0;
+
+		for (int i = 0; i < permanence.length; i++) {
+			if (permanence[i] > opt.PERMANENCE_CONNECTED) {
+				overlap += field.get(i);
+			}
 		}
-		return value;
+		if (overlap < opt.MIN_OVERLAP) {
+			overlap = 0;
+		} else {
+			overlap *= boost;
+		}
+		activeDutyCycle = activeDutyCycle * 0.999;
+		overlapDutyCycle = overlapDutyCycle * 0.999;
+		if (overlap > 0) {
+			overlapDutyCycle += 0.001;
+		}
+		return overlap;
+	}
+
+	public void updateWinner() {
+		for (int i = 0; i < permanence.length; i++) {
+			if (field.test(i)) {
+				permanence[i] = Math.min(permanence[i] + opt.PERMANENCE_INC, 100);
+			} else {
+				permanence[i] = Math.max(permanence[i] - opt.PERMANENCE_DEC, 0);
+			}
+		}
+		activeDutyCycle += 0.001;
+	}
+
+	double activeDutyCycle() {
+		return activeDutyCycle;
+	}
+
+	public void updateSensor(double maxDutyCycle) {
+		double minDutyCycle = 0.01 * maxDutyCycle;
+		boost = boostFunction(activeDutyCycle, minDutyCycle);
+		if (overlapDutyCycle < minDutyCycle) {
+			for (int i = 0; i < permanence.length; i++) {
+				double increase = permanence[i] + 0.1 * opt.PERMANENCE_CONNECTED;
+				permanence[i] = (int) Math.min(increase, 100);
+			}
+		}
+	}
+
+	private double boostFunction(double activeDutyCycle, double minDutyCycle) {
+		if (activeDutyCycle > minDutyCycle)
+			return 1;
+		return boost + opt.SENSOR_BOOST;
+	}
+
+	public String toString() {
+		StringBuilder result = new StringBuilder("(");
+		int width = field.width();
+		int height = field.height();
+		for (int y = 0; y < height; y++) {
+			if(y > 0)
+				result.append(' ');
+			result.append("[");
+			for (int x = 0; x < width; x++) {
+				int value = permanence[y*width + x];
+				result.append(value >= 80 ? '@': (value >= 50 ? 'O': (value>=20?'o':(value>=10?'.':' '))));
+			}
+			result.append("]");
+			if(y != height-1)
+				result.append('\n');
+		}
+		result.append(")");
+		result.append("\nboost="+boost);
+		result.append("\nactiveDutyCycle="+activeDutyCycle);
+		result.append("\noverlapDutyCycle="+overlapDutyCycle);
+		result.append("\n");
+		return result.toString();
 	}
 }

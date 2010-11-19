@@ -1,33 +1,18 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package engine;
 
-/**
- *
- * @author dimko
- */
 public class Options {
-    final boolean SEQUENTIAL_LEARNING = false;
-	final int MAX_RECOGNIZED_TYPES = 128;
-//    final int SUPERVISED_SENSORS_COUNT = 1024;
-//    final int SUPERVISED_SENSORS_QUANTITY = 1;
-//XXX: if SUPERVISED_SENSORS_QUANTITY is "1", special fix is applied
-//XXX: so each sensor is connected to input with the same id.
-    final int SUPERVISED_SENSORS_COUNT = 1024;
-    final int SUPERVISED_SENSORS_QUANTITY = 1;
-    final int SENSORS_COUNT = 128;
-    final int SENSORS_QUANTITY = 100;
-    final double SENSORS_TO_PATTERNS = 0.1;
-    final int NEURONS_PER_SENSOR = 8;
-    final int SAMPLES_PER_NEURON = 50;
-    final int NEURON_NEIGHBOURS = 3;
-    final int LAYERS = 3;    
-    
-    public int SENSOR_TO_PATTERNS_WINNERS(){
-        return (int) (SENSORS_TO_PATTERNS * SENSORS_COUNT);
-    }
-
+	public final int SENSORS = 128;
+	public final int CELLS = 3;
+	public final double SENSOR_BOOST = 0.5;
+	public final int ACTIVATION_THRESHOLD = 7;
+	public final int MIN_OVERLAP = 500;
+	public final int NEW_SYNAPSES = 4;
+	public final int PERMANENCE_INC = 10;
+	public final int PERMANENCE_DEC = 5;
+	public final int PERMANENCE_CONNECTED = 10;
+	public final int PERMANENCE_INITIAL = 20;
+	public final int LAYERS = 1;
+	public final int SENSOR_WINNERS = 8;
+	public final boolean SEQUENTIAL_LEARNING = false;
+	static final int LEARN_TIME = 10 * 10 * 30;
 }

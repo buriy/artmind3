@@ -19,23 +19,35 @@ public class ByteField implements Field {
 
 	public String toString() {
 		StringBuilder result = new StringBuilder("(");
-		for (int i = 0; i < height; i++) {
+		for (int y = 0; y < height; y++) {
+			if(y > 0)
+				result.append(' ');
 			result.append("[");
-			for (int j = 0; j < width; j++) {
-				int value = get(i, j);
-				result.append(value);
+			for (int x = 0; x < width; x++) {
+				boolean value = test(x, y);
+				result.append(value ? '*': ' ');
 			}
-			result.append("]\n");
+			result.append("]");
+			if(y != height-1)
+				result.append('\n');
 		}
 		return result + ")";
 	}
 
 	public int get(int item) {
-		return data[item];
+		return data[item] & 0xFF;
+	}
+
+	public boolean test(int item) {
+		return data[item] < 0;
+	}
+
+	public boolean test(int x, int y) {
+		return data[y * width + x] < 0;
 	}
 
 	public int get(int x, int y) {
-		return data[y * width + x];
+		return data[y * width + x] & 0xFF;
 	}
 
 	public void reset() {
@@ -48,7 +60,21 @@ public class ByteField implements Field {
 		data[y * width + x] = (byte)value;
 	}
 
-	public int getSize() {
+	public void set(int x, int y, boolean value) {
+		data[y * width + x] = (byte) (value ? -1 : 0);
+	}
+
+	public int size() {
 		return size;
+	}
+
+	@Override
+	public int width() {
+		return width;
+	}
+
+	@Override
+	public int height() {
+		return height;
 	}
 }

@@ -20,8 +20,9 @@ public class Network {
 		this.nodes = new InternalNode[options.LAYERS];
 		Field input_layer = input;
 		for (int layer = 0; layer < options.LAYERS; layer++) {
-			fields[layer] = new ByteField(options.SENSORS_COUNT, options.NEURONS_PER_SENSOR);
+			fields[layer] = new ByteField(options.SENSORS, options.CELLS);
 			nodes[layer] = new InternalNode(input_layer, fields[layer], options);
+			input_layer = fields[layer];
 		}
         this.output = new StringField();
         this.supervisor = new UpperNode(input_layer, this.output, options);

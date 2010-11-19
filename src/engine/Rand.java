@@ -11,7 +11,7 @@ public class Rand {
 		rand = new Random();
 	}
 	
-	public static int nextInt(int n){
+	public static int range(int n){
 		return INSTANCE.rand.nextInt(n);
 	}
 

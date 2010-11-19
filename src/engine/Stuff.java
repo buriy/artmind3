@@ -3,12 +3,12 @@ package engine;
 import java.util.Arrays;
 import java.util.HashSet;
 
-public class SampleSet {
+public class Stuff {
 	int[][] values;
 	int size;
 	private final int width;
 
-	public SampleSet(int max, int width) {
+	public Stuff(int max, int width) {
 		this.width = width;
 		values = new int[max][width];
 		size = 0;
