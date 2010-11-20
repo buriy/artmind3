@@ -7,7 +7,6 @@ public class UpperNode extends Node {
 	private StringField output_field;
 	private TreeMap<String, double[]> types;
 	private TreeMap<String, Integer> displayed;
-	protected Sensor[] sensors;
 
 	public UpperNode(Field input_field, StringField output_field, Options opt) {
 		super(input_field, opt);
@@ -58,13 +57,6 @@ public class UpperNode extends Node {
 			if (input.get(i) >= 128) {
 				array[i] += 1;
 			}
-		}
-	}
-
-	protected void create_sensors() {
-		sensors = new Sensor[this.opt.SENSORS];
-		for (int i = 0; i < this.opt.SENSORS; ++i) {
-			sensors[i] = new Sensor(opt, input);
 		}
 	}
 }

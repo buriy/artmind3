@@ -24,11 +24,11 @@ public class Synapse {
 		perm = Math.min(perm + value, 100);
 	}
 
-	public boolean decPermanence(int value, int minimum) {
+	public int decPermanence(int value) {
 		if(perm == NOT_INITIALIZED)
 			throw new IllegalStateException("Should use setPermanence on new Synapse");
 		perm -= value;
-		return perm < minimum;
+		return perm;
 	}
 
 	@Override

@@ -3,7 +3,6 @@ package engine;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
 
 import util.Utils;
 
@@ -163,23 +162,23 @@ public class Columns {
 
 	private void adaptSegments(int b, int c, boolean positiveReinforcement) {
 		for (SegmentUpdate segmentUpdate : segmentUpdateList[b][c]) {
-			if (segmentUpdate.segment == null) {
+			Segment targetSegment = segmentUpdate.segment;
+			if (targetSegment == null) {
 				addSegment(b, c, segmentUpdate);
 				continue;
 			}
-			HashSet<Synapse> synapses = segmentUpdate.segment.synapses;
-			HashSet<Synapse> updates = new HashSet<Synapse>(segmentUpdate.synapses);
+			HashSet<Synapse> synapses = targetSegment.synapses;
+			HashSet<Synapse> possibleSynapses = targetSegment.possibleSynapses;
+			HashSet<Synapse> updates = new HashSet<Synapse>(segmentUpdate.updatedSynapses);
 			if (positiveReinforcement) {
-				Iterator<Synapse> iterator = synapses.iterator();
-				while (iterator.hasNext()) {
-					Synapse s = iterator.next();
+				for (Synapse s: possibleSynapses) {
 					if (updates.contains(s)) {
 						s.addPermanence(opt.PERMANENCE_INC);
 						updates.remove(s);
 					} else {
-						boolean zero = s.decPermanence(opt.PERMANENCE_DEC, opt.PERMANENCE_CONNECTED);
-						if (zero) {
-							iterator.remove();
+						int permanence = s.decPermanence(opt.PERMANENCE_DEC);
+						if (permanence < opt.PERMANENCE_CONNECTED) {
+							synapses.remove(s);
 						}
 					}
 				}
@@ -190,13 +189,11 @@ public class Columns {
 					}
 				}
 			} else {
-				Iterator<Synapse> iterator = synapses.iterator();
-				while (iterator.hasNext()) {
-					Synapse s = iterator.next();
+				for (Synapse s: possibleSynapses) {
 					if (updates.contains(s)) {
-						boolean zero = s.decPermanence(opt.PERMANENCE_DEC, opt.PERMANENCE_CONNECTED);
-						if (zero) {
-							iterator.remove();
+						int permanence = s.decPermanence(opt.PERMANENCE_DEC);
+						if (permanence < opt.PERMANENCE_CONNECTED) {
+							synapses.remove(s);
 						}
 					}
 				}
@@ -205,10 +202,10 @@ public class Columns {
 	}
 
 	private void addSegment(int b, int c, SegmentUpdate segmentUpdate) {
-		if (!segmentUpdate.synapses.isEmpty()) {
+		if (!segmentUpdate.updatedSynapses.isEmpty()) {
 			Segment segment = new Segment();
 			segment.sequenceSegment = segmentUpdate.sequenceSegment;
-			segment.synapses = segmentUpdate.synapses;
+			segment.synapses = segmentUpdate.updatedSynapses;
 			for (Synapse s : segment.synapses) {
 				s.setPermanence(opt.PERMANENCE_INITIAL);
 			}
@@ -282,7 +279,7 @@ public class Columns {
 			}
 		}
 		update.segment = segment;
-		update.synapses = items;
+		update.updatedSynapses = items;
 		if (!newSynapses) {
 			return update;
 		}
