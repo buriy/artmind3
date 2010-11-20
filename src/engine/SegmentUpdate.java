@@ -1,11 +1,11 @@
 package engine;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 
 public class SegmentUpdate {
 	public Segment segment;
 	public boolean sequenceSegment;
-	public ArrayList<Synapse> synapses;
+	public HashSet<Synapse> synapses;
 	
 	@Override
 	public String toString() {

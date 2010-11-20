@@ -2,8 +2,8 @@ package engine;
 
 public class Synapse {
 	private static final int NOT_INITIALIZED = -1;
-	private final int bit;
-	private final int cell;
+	final int bit;
+	final int cell;
 	private int perm;
 
 	public Synapse(int bit, int cell) {
@@ -29,18 +29,6 @@ public class Synapse {
 			throw new IllegalStateException("Should use setPermanence on new Synapse");
 		perm -= value;
 		return perm < minimum;
-	}
-
-	public int bit() {
-		return bit;
-	}
-
-	public int cell() {
-		return cell;
-	}
-
-	public int permanence() {
-		return perm;
 	}
 
 	@Override

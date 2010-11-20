@@ -1,5 +1,7 @@
 package engine;
 
+import util.Utils;
+
 public class IntField implements Field {
 	int size;
 	int width;
@@ -19,7 +21,7 @@ public class IntField implements Field {
 			result.append("[");
 			for (int j = 0; j < width; j++) {
 				int value = get(i, j);
-				result.append(value);
+				result.append(Utils.color255(value));
 			}
 			result.append("]\n");
 		}

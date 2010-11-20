@@ -1,5 +1,7 @@
 package engine;
 
+import util.Utils;
+
 public class ByteField implements Field {
 	private int size;
 	int width;
@@ -24,8 +26,8 @@ public class ByteField implements Field {
 				result.append(' ');
 			result.append("[");
 			for (int x = 0; x < width; x++) {
-				boolean value = test(x, y);
-				result.append(value ? '*': ' ');
+				int value = get(x, y);
+				result.append(Utils.color255(value));
 			}
 			result.append("]");
 			if(y != height-1)

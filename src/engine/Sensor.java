@@ -1,5 +1,8 @@
 package engine;
 
+import util.Rand;
+import util.Utils;
+
 public class Sensor {
 	private int[] permanence;
 	private final Field field;
@@ -24,7 +27,7 @@ public class Sensor {
 		int overlap = 0;
 
 		for (int i = 0; i < permanence.length; i++) {
-			if (permanence[i] > opt.PERMANENCE_CONNECTED) {
+			if (permanence[i] >= opt.PERMANENCE_CONNECTED) {
 				overlap += field.get(i);
 			}
 		}
@@ -83,7 +86,7 @@ public class Sensor {
 			result.append("[");
 			for (int x = 0; x < width; x++) {
 				int value = permanence[y*width + x];
-				result.append(value >= 80 ? '@': (value >= 50 ? 'O': (value>=20?'o':(value>=10?'.':' '))));
+				result.append(Utils.color100(value));
 			}
 			result.append("]");
 			if(y != height-1)

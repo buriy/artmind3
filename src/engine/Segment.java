@@ -1,10 +1,11 @@
 package engine;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 
 public class Segment {
 	public boolean sequenceSegment;
-	ArrayList<Synapse> synapses = new ArrayList<Synapse>();
+	HashSet<Synapse> synapses = new HashSet<Synapse>();
+	HashSet<Synapse> possibleSynapses = new HashSet<Synapse>();
 
 	@Override
 	public String toString() {
