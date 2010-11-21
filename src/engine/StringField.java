@@ -17,7 +17,7 @@ public class StringField {
 	public String toString() {
 		StringBuilder result = new StringBuilder("");
 		Set<Entry<String,Double>> entries = data.entrySet();
-		double maxValue = 0;
+		double maxValue = -1e99;
 		String maxKey = "";
 		for (Entry<String, Double> entry : entries) {
 			if(entry.getValue() > maxValue){

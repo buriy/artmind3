@@ -43,10 +43,7 @@ public class Columns {
 		}
 	}
 
-	public State operate(int[] activeColumns, boolean learnMode) {
-		int oldt = time;
-		time = 1 - time;
-
+	private void init() {
 		learningCells[time] = new ArrayList<Synapse>();
 		for (int i = 0; i < opt.SENSORS; i++) {
 			for (int j = 0; j < opt.CELLS; j++) {
@@ -55,10 +52,12 @@ public class Columns {
 				predictive[i][j][time] = false;
 			}
 		}
-
-		if (!learnMode) {
-			return run(activeColumns);
-		}
+	}
+	
+	public State learn(int[] activeColumns) {
+		int oldt = time;
+		time = 1 - time;
+		init();
 
 		for (int b : activeColumns) {
 			boolean lcChosen = false;
@@ -123,17 +122,19 @@ public class Columns {
 	private void set_output() {
 		for (int b = 0; b < opt.SENSORS; b++) {
 			for (int c = 0; c < opt.CELLS; c++) {
-				output.set(b, c, active[b][c][time]);
+				output.set(b, c, active[b][c][time] || predictive[b][c][time]);
 			}
 		}
 	}
 
-	private State run(int[] activeColumns) {
-		int oldt = 1 - time;
+	public State run(int[] activeColumns) {
+		int oldt = time;
+		time = 1 - time;
+		init();
 		for (int b : activeColumns) {
 			boolean buPredicted = false;
 			for (int c = 0; c < opt.CELLS; c++) {
-				if (predictive[b][c][time]) {
+				if (predictive[b][c][oldt]) {
 					Segment s = getActiveSegment(b, c, oldt);
 					if(s != null && s.sequenceSegment){
 						buPredicted = true;

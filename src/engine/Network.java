@@ -9,7 +9,7 @@ public class Network {
 	private ByteField input;
 	private Field[] fields;
 	private StringField output;
-	private InternalNode[] nodes;
+	private InnerNode[] nodes;
 	private UpperNode supervisor;
 	private final Options options;
 
@@ -17,11 +17,11 @@ public class Network {
         this.options = options;
 		this.input = new ByteField(32, 32);
 		this.fields = new ByteField[options.LAYERS];
-		this.nodes = new InternalNode[options.LAYERS];
+		this.nodes = new InnerNode[options.LAYERS];
 		Field input_layer = input;
 		for (int layer = 0; layer < options.LAYERS; layer++) {
 			fields[layer] = new ByteField(options.SENSORS, options.CELLS);
-			nodes[layer] = new InternalNode(input_layer, fields[layer], options);
+			nodes[layer] = new InnerNode(input_layer, fields[layer], options);
 			input_layer = fields[layer];
 		}
         this.output = new StringField();
@@ -38,8 +38,8 @@ public class Network {
 					return state;
 			}
 		}
-		int maxLearnTime = nodes[options.LAYERS - 1].learnTime();
-		return supervisor.train(maxLearnTime, supervised);
+//		int maxLearnTime = nodes[options.LAYERS - 1].learnTime();
+		return supervisor.train(options.LEARN_TIME, supervised);
 	}
 
 	public String run(byte[] data) {

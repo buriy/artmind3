@@ -4,25 +4,25 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 
 public class UpperNode extends Node {
-	private StringField output_field;
+	private StringField output;
 	private TreeMap<String, double[]> types;
 	private TreeMap<String, Integer> displayed;
 
-	public UpperNode(Field input_field, StringField output_field, Options opt) {
-		super(input_field, opt);
-		this.output_field = output_field;
+	public UpperNode(Field input, StringField output, Options opt) {
+		super(input, opt);
+		this.output = output;
 		this.types = new TreeMap<String, double[]>();
 		this.displayed = new TreeMap<String, Integer>();
 	}
 
 	public State train(int maxLearnTime, String supervised) {
-		int timeLeft = maxLearnTime - learnTime();
-		if (timeLeft >= 0) {
+		int learnTimeLeft = maxLearnTime - learnTime();
+		if (learnTimeLeft >= 0) {
+			learn(supervised);
 			incLearnTime();
-			if (timeLeft == 0) {
+			if (learnTimeLeft == 1) {
 				return State.RESTART;
 			}
-			learn(supervised);
 			return State.TRAIN;
 		} else {
 			return State.LEARNED;
@@ -33,13 +33,14 @@ public class UpperNode extends Node {
 		for (Entry<String, double[]> entry : types.entrySet()) {
 			String key = entry.getKey();
 			double[] value = entry.getValue();
+			int count = displayed.get(key);
 			double sum = 0;
 			for (int i = 0; i < input.size(); i++) {
-				if (input.get(i) >= 128) {
-					sum += value[i];
+				if(input.test(i)){
+					sum += value[i] / count;
 				}
 			}
-			output_field.set(key, sum * 100 / displayed.get(key));
+			output.set(key, sum * 100);
 		}
 		return State.LEARNED;
 	}
@@ -54,7 +55,7 @@ public class UpperNode extends Node {
 		displayed.put(supervised, displayed.get(supervised) + 1);
 
 		for (int i = 0; i < input.size(); i++) {
-			if (input.get(i) >= 128) {
+			if (input.test(i)) {
 				array[i] += 1;
 			}
 		}
