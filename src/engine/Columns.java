@@ -187,6 +187,7 @@ public class Columns {
 					if (new_synapse.isNew()) {
 						new_synapse.setPermanence(opt.PERMANENCE_INITIAL);
 						synapses.add(new_synapse);
+						possibleSynapses.add(new_synapse);
 					}
 				}
 			} else {
@@ -207,6 +208,7 @@ public class Columns {
 			Segment segment = new Segment();
 			segment.sequenceSegment = segmentUpdate.sequenceSegment;
 			segment.synapses = segmentUpdate.updatedSynapses;
+			segment.possibleSynapses = new HashSet<Synapse>(segmentUpdate.updatedSynapses);
 			for (Synapse s : segment.synapses) {
 				s.setPermanence(opt.PERMANENCE_INITIAL);
 			}
