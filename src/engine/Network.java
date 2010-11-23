@@ -11,16 +11,16 @@ public class Network {
 	private StringField output;
 	private InnerNode[] nodes;
 	private UpperNode supervisor;
-	private final Options options;
+	private final Options opt;
 
 	public Network(Options options){
-        this.options = options;
+        this.opt = options;
 		this.input = new ByteField(32, 32);
 		this.fields = new ByteField[options.LAYERS];
 		this.nodes = new InnerNode[options.LAYERS];
 		Field input_layer = input;
 		for (int layer = 0; layer < options.LAYERS; layer++) {
-			fields[layer] = new ByteField(options.SENSORS, options.CELLS);
+			fields[layer] = new ByteField(options.SENSORS, options.NEURON_CELLS);
 			nodes[layer] = new InnerNode(input_layer, fields[layer], options);
 			input_layer = fields[layer];
 		}
@@ -33,13 +33,13 @@ public class Network {
 		State state;
 		for (Node node : nodes) {
 			state = node.operate();
-			if(options.SEQUENTIAL_LEARNING){
+			if(opt.SEQUENTIAL_LEARNING){
 				if(state == State.TRAIN || state == State.RESTART)
 					return state;
 			}
 		}
 //		int maxLearnTime = nodes[options.LAYERS - 1].learnTime();
-		return supervisor.train(options.LEARN_TIME, supervised);
+		return supervisor.train(opt.LEARN_TIME, supervised);
 	}
 
 	public String run(byte[] data) {

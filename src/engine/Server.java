@@ -19,9 +19,16 @@ class Server {
 		this.port = port;
 	}
 
-	public void serve() throws IOException, InterruptedException {
+	public void serve() throws IOException, InterruptedException, UnsupportedCommandException {
 		this.server = new ServerSocket(this.port);
 		Socket client = this.server.accept();
+		accept_client(client);
+		Thread.sleep(500);
+        server.close();
+        System.out.println("Work completed.");
+	}
+
+	private void accept_client(Socket client) throws IOException, UnsupportedCommandException {
 		BufferedReader in = new BufferedReader(new InputStreamReader(
 				client.getInputStream()));
 		BufferedWriter out = new BufferedWriter(new OutputStreamWriter(
@@ -29,19 +36,20 @@ class Server {
 
 		while (command(in, out))
 			;
-		Thread.sleep(500);
-        server.close();
-        System.out.println("Work completed.");
 	}
 
 	public boolean command(BufferedReader in, BufferedWriter out)
-			throws IOException {
+			throws IOException, UnsupportedCommandException {
 		String response = in.readLine();
 		if (response == null)
 			return false;
 		String[] command = response.split(" ");
 		try{
-			if ("TRAIN".equals(command[0])) {
+			String action = command[0];
+			if ("TRAIN".equals(action)) {
+				if(network == null){
+					throw new UnsupportedCommandException("Network was not created. Please use CREATE command.");
+				}
 				State state = train(command, in);
 				if (state == State.RESTART) {
 					out.append("RESTART\n");
@@ -50,19 +58,48 @@ class Server {
 					out.append("LEARNED\n");
 					out.flush();
 				}
-			} else if ("TEST".equals(command[0])) {
+			} else if ("TEST".equals(action)) {
+				if(network == null){
+					throw new UnsupportedCommandException("Network was not created. Please use CREATE command.");
+				}
 				String value = test(command, in);
 				out.append("RESULT " + value + "\n");
 				out.flush();
-			} else if ("OPTIONS".equals(command[0])) {
-				Options options = new Options();
-				this.network = new Network(options);
+			} else if ("OPTIONS".equals(action)) {
+				String[] fields = Options.fields();
+				out.append("OPTIONS "+fields.length+"\n");
+				for(String f: fields){
+					out.append(f+"\n");
+				}
+				out.flush();
+				System.out.println("Options sent!");
+			} else if ("CREATE".equals(action)) {
+				if(network != null){
+					throw new UnsupportedCommandException("Network already exists!");
+				}
+				try {
+					create(command, in);
+				} catch (Exception e) {
+					e.printStackTrace();
+					throw new UnsupportedDataException("Command failed.");
+				}
 				System.out.println("Network created!");
 			}
 		}catch(UnsupportedDataException ude){
 			System.err.println(ude);
 		}
 		return true;
+	}
+
+	private void create(String[] command, BufferedReader in) throws IOException, IllegalArgumentException, SecurityException, IllegalAccessException, NoSuchFieldException {
+		int lines = Integer.parseInt(command[1]);
+		Options options = new Options();
+		for(int i=0; i<lines; i++){
+			String opt = in.readLine();
+			String[] parts = opt.split(" ", 1);
+			options.setOption(parts[0], parts[1]);
+		}
+		this.network = new Network(options);
 	}
 
 	private State train(String[] command, BufferedReader in) throws IOException, UnsupportedDataException {

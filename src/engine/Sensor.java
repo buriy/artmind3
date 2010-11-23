@@ -27,11 +27,11 @@ public class Sensor {
 		int overlap = 0;
 
 		for (int i = 0; i < permanence.length; i++) {
-			if (permanence[i] >= opt.PERMANENCE_CONNECTED) {
+			if (permanence[i] >= opt.SENSOR_PERMANENCE_CONNECTED) {
 				overlap += field.get(i);
 			}
 		}
-		if (overlap < opt.MIN_OVERLAP) {
+		if (overlap < opt.SENSOR_MIN_OVERLAP) {
 			overlap = 0;
 		} else {
 			overlap *= boost;
@@ -47,9 +47,9 @@ public class Sensor {
 	public void updateWinner() {
 		for (int i = 0; i < permanence.length; i++) {
 			if (field.test(i)) {
-				permanence[i] = Math.min(permanence[i] + opt.PERMANENCE_INC, 100);
+				permanence[i] = Math.min(permanence[i] + opt.SENSOR_PERMANENCE_INC, 100);
 			} else {
-				permanence[i] = Math.max(permanence[i] - opt.PERMANENCE_DEC, 0);
+				permanence[i] = Math.max(permanence[i] - opt.SENSOR_PERMANENCE_DEC, 0);
 			}
 		}
 		activeDutyCycle += 0.001;
@@ -64,7 +64,7 @@ public class Sensor {
 		boost = boostFunction(activeDutyCycle, minDutyCycle);
 		if (overlapDutyCycle < minDutyCycle) {
 			for (int i = 0; i < permanence.length; i++) {
-				double increase = permanence[i] + 0.1 * opt.PERMANENCE_CONNECTED;
+				double increase = permanence[i] + 0.1 * opt.SENSOR_PERMANENCE_CONNECTED;
 				permanence[i] = (int) Math.min(increase, 100);
 			}
 		}
