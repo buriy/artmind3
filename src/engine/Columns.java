@@ -177,10 +177,9 @@ public class Columns {
 		for (SegmentUpdate segmentUpdate : segmentUpdateList[b][c]) {
 			Segment targetSegment = segmentUpdate.segment;
 			if (targetSegment == null) {
-				if(!positiveReinforcement){
-					System.out.println("Weird!");
+				if(positiveReinforcement){
+					addSegment(b, c, segmentUpdate);
 				}
-				addSegment(b, c, segmentUpdate);
 				continue;
 			}
 			HashSet<Synapse> connectedSynapses = targetSegment.connectedSynapses;
@@ -355,6 +354,9 @@ public class Columns {
 				}
 			}
 		}
+//		if(pretender == null){
+//			System.out.println("Weird");
+//		}
 		return pretender;
 	}
 
@@ -365,9 +367,9 @@ public class Columns {
 			final int moment = (s == 0) ? time : 1 - time;
 			builder.append(String.format("Active %s:\n", (s == 0) ? "now" : "before"));
 			builder.append(Utils.render(opt.SENSORS, opt.NEURON_CELLS, new Renderer() {
-				public char paint(int position) {
-					int b = position / opt.SENSORS;
-					int c = position % opt.SENSORS;
+				public char paint(int position) { // y * width + x
+					int b = position % opt.SENSORS;
+					int c = position / opt.SENSORS;
 					boolean sa = active[b][c][moment];
 					boolean sl = learn[b][c][moment];
 					boolean sp = predictive[b][c][moment];
