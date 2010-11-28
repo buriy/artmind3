@@ -23,9 +23,9 @@ public class UpperNode extends Node {
 			if (learnTimeLeft == 1) {
 				return State.RESTART;
 			}
-			return State.TRAIN;
+			return State.LEARNING;
 		} else {
-			return State.LEARNED;
+			return State.TESTING;
 		}
 	}
 
@@ -42,7 +42,7 @@ public class UpperNode extends Node {
 			}
 			output.set(key, sum * 100);
 		}
-		return State.LEARNED;
+		return State.TESTING;
 	}
 
 	public void learn(String supervised) {

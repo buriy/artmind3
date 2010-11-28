@@ -1,5 +1,6 @@
 package engine;
 
+import util.Renderer;
 import util.Utils;
 
 public class ByteField implements Field {
@@ -17,23 +18,6 @@ public class ByteField implements Field {
 		this.width = width;
 		this.height = height;
 		this.data = data;
-	}
-
-	public String toString() {
-		StringBuilder result = new StringBuilder("(");
-		for (int y = 0; y < height; y++) {
-			if(y > 0)
-				result.append(' ');
-			result.append("[");
-			for (int x = 0; x < width; x++) {
-				int value = get(x, y);
-				result.append(Utils.color255(value));
-			}
-			result.append("]");
-			if(y != height-1)
-				result.append('\n');
-		}
-		return result + ")";
 	}
 
 	public int get(int item) {
@@ -59,7 +43,7 @@ public class ByteField implements Field {
 	}
 
 	public void set(int x, int y, int value) {
-		data[y * width + x] = (byte)value;
+		data[y * width + x] = (byte) value;
 	}
 
 	public void set(int x, int y, boolean value) {
@@ -78,5 +62,13 @@ public class ByteField implements Field {
 	@Override
 	public int height() {
 		return height;
+	}
+
+	public String toString() {
+		return Utils.render(width, height, new Renderer() {
+			public char paint(int position) {
+				return Utils.color255(get(position));
+			}
+		}).toString();
 	}
 }

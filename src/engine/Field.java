@@ -5,11 +5,11 @@ public interface Field {
 	int width();
 	int height();
 
+	int get(int pos);
 	int get(int x, int y);
-	int get(int item);
-	boolean test(int item);
+	boolean test(int pos);
 	void set(int x, int y, int value);
-	void set(int b, int c, boolean d);
+	void set(int x, int y, boolean value);
 	
 	void reset();
 

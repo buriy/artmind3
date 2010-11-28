@@ -7,7 +7,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 public class StringField {
-	private SortedMap<String, Double> data;
+	SortedMap<String, Double> data;
 
 	public StringField() {
 		this.data = new TreeMap<String, Double>();

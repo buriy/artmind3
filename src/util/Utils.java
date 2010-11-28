@@ -5,6 +5,8 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
 
+import engine.Options;
+
 
 public class Utils {
 	/**
@@ -68,19 +70,74 @@ public class Utils {
 		return search;
 	}
 
-	static char BLACK100 = '\u2588';
-	static char BLACK_75 = '\u2593';
-	static char BLACK_50 = '\u2592';
-	static char BLACK_25 = '\u2591';
-	static char BLACK__0 = ' ';
+	public static char BLACK100 = '\u2588';
+	public static char BLACK_75 = '\u2593';
+	public static char BLACK_50 = '\u2592';
+	public static char BLACK_25 = '\u2591';
+	public static char BLACK__0 = ' ';
 
+	public static char color2(boolean value) {
+		return value ? BLACK100 : BLACK__0;
+	}
+	
 	public static char color100(int value) {
-		return value >= 80 ? BLACK100 : (value >= 50 ? BLACK_75
-				: (value >= 25 ? BLACK_50 : (value >= 10 ? BLACK_25 : BLACK__0)));
+		return  value >= 80 ? BLACK100 : (
+			    value >= 50 ? BLACK_75 : (
+			    value >= 25 ? BLACK_50 : (
+			    value >= 10 ? BLACK_25 : 
+				              BLACK__0 )));
 	}
 
 	public static char color255(int value) {
-		return value >= 80 ? BLACK100 : (value >= 60 ? BLACK_75
-				: (value >= 40 ? BLACK_50 : (value >= 20 ? BLACK_25 : BLACK__0)));
+		return  value >= 80 ? BLACK100 : (
+				value >= 60 ? BLACK_75 : (
+				value >= 40 ? BLACK_50 : (
+				value >= 20 ? BLACK_25 : 
+							  BLACK__0 )));
+	}
+
+	public static StringBuilder render(int width, int height, Renderer renderer) {
+		return render(width, height, Options.DEBUG_STRIP, renderer);
+	}
+
+	public static StringBuilder render(int width, int height, int strip, Renderer renderer) {
+		StringBuilder result = new StringBuilder("(");
+		int strips = 1 + (width - 1) / strip;
+		for(int s = 0; s < strips; s++){	
+			for (int y = 0; y < height; y++) {
+				if ((y > 0 && s == 0) || (s > 0)) {
+					result.append(' ');
+				}
+				result.append("[");
+				for (int x = 0; x < strip; x++) {
+					int rx = x + s * strip;
+					if(rx >= width) break;
+					result.append(renderer.paint(y * width + rx));
+				}
+				result.append("]");
+				result.append('\n');
+			}
+		}
+		result.append(")");
+		return result;
+	}
+
+	public static int maximum(int[] values, int min) {
+		int max = min;
+		for (int i = 0; i < values.length; i++) {
+			if (values[i] > max)
+				max = values[i];
+		}
+		return max;
+	}
+
+	public static StringBuilder renderValues(int width, int height, final int[] values) {
+		final double divider = maximum(values, 1) / 120;
+		return render(width, height, new Renderer(){
+			public char paint(int position) {
+				int value = (int) (values[position] / divider);
+				return color100(value);
+			}
+		});
 	}
 }

@@ -1,44 +1,41 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package engine;
+
+import util.Utils;
 
 public class Network {
 	private ByteField input;
-	private Field[] fields;
+	private ByteField[] fields;
 	private StringField output;
 	private InnerNode[] nodes;
 	private UpperNode supervisor;
 	private final Options opt;
 
-	public Network(Options options){
-        this.opt = options;
+	public Network(Options options) {
+		this.opt = options;
 		this.input = new ByteField(32, 32);
 		this.fields = new ByteField[options.LAYERS];
 		this.nodes = new InnerNode[options.LAYERS];
 		Field input_layer = input;
 		for (int layer = 0; layer < options.LAYERS; layer++) {
 			fields[layer] = new ByteField(options.SENSORS, options.NEURON_CELLS);
-			nodes[layer] = new InnerNode(input_layer, fields[layer], options);
+			nodes[layer] = new InnerNode(input_layer, fields[layer], options, layer);
 			input_layer = fields[layer];
 		}
-        this.output = new StringField();
-        this.supervisor = new UpperNode(input_layer, this.output, options);
-    }
-	
-	public State train(byte[] data, String supervised){
+		this.output = new StringField();
+		this.supervisor = new UpperNode(input_layer, this.output, options);
+	}
+
+	public State train(byte[] data, String supervised) {
 		input.data = data;
 		State state;
 		for (Node node : nodes) {
 			state = node.operate();
-			if(opt.SEQUENTIAL_LEARNING){
-				if(state == State.TRAIN || state == State.RESTART)
+			if (opt.SEQUENTIAL_LEARNING) {
+				if (state == State.LEARNING || state == State.RESTART)
 					return state;
 			}
 		}
-//		int maxLearnTime = nodes[options.LAYERS - 1].learnTime();
+		// int maxLearnTime = nodes[options.LAYERS - 1].learnTime();
 		return supervisor.train(opt.LEARN_TIME, supervised);
 	}
 
@@ -49,5 +46,19 @@ public class Network {
 		}
 		supervisor.operate();
 		return output.toString();
+	}
+	
+	@Override
+	public String toString() {
+		byte[] source = fields[opt.LAYERS-1].data;
+		int[] values = new int[source.length];
+		for(int i=0; i<source.length; i++){
+			values[i] = source[i] & 0xFF;
+		}
+		for(int layer=opt.LAYERS-1; layer>=0; layer--){
+			InnerNode node = nodes[layer];
+			values = node.restore(values);
+		}
+		return Utils.renderValues(input.width(), input.height(), values).toString();
 	}
 }

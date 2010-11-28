@@ -1,10 +1,11 @@
 package engine;
 
 import util.Rand;
+import util.Renderer;
 import util.Utils;
 
 public class Sensor {
-	private int[] permanence;
+	int[] permanence;
 	private final Field field;
 
 	double boost;
@@ -77,26 +78,14 @@ public class Sensor {
 	}
 
 	public String toString() {
-		StringBuilder result = new StringBuilder("(");
-		int width = field.width();
-		int height = field.height();
-		for (int y = 0; y < height; y++) {
-			if(y > 0)
-				result.append(' ');
-			result.append("[");
-			for (int x = 0; x < width; x++) {
-				int value = permanence[y*width + x];
-				result.append(Utils.color100(value));
+		StringBuilder result = Utils.render(field.width(), field.height(), new Renderer(){
+			public char paint(int position) {
+				return Utils.color100(permanence[position]);
 			}
-			result.append("]");
-			if(y != height-1)
-				result.append('\n');
-		}
-		result.append(")");
+		});
 		result.append("\nboost="+boost);
 		result.append("\nactiveDutyCycle="+activeDutyCycle);
 		result.append("\noverlapDutyCycle="+overlapDutyCycle);
-		result.append("\n");
 		return result.toString();
 	}
 }

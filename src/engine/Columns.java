@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 
+import util.Renderer;
 import util.Utils;
 
 public class Columns {
@@ -17,9 +18,14 @@ public class Columns {
 	private ArrayList<Synapse>[] learningCells;
 	private int time;
 	ArrayList<SegmentUpdate>[][] segmentUpdateList;
+	private boolean prediction;
 
 	public boolean isLearning() {
 		return isLearning;
+	}
+
+	boolean prediction() {
+		return prediction;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -53,7 +59,7 @@ public class Columns {
 			}
 		}
 	}
-	
+
 	public State learn(int[] activeColumns) {
 		int oldt = time;
 		time = 1 - time;
@@ -68,7 +74,7 @@ public class Columns {
 					if (s != null && s.sequenceSegment) {
 						buPredicted = true;
 						active[b][c][time] = true;
-						if (getLearnActiveSize(s, oldt) > opt.NEURON_ACTIVATION_THRESHOLD) {
+						if (getLearnActiveSize(s, oldt) >= opt.NEURON_ACTIVATION_THRESHOLD) {
 							lcChosen = true;
 							learn[b][c][time] = true;
 							learningCells[time].add(new Synapse(b, c));
@@ -93,7 +99,7 @@ public class Columns {
 		for (int b = 0; b < opt.SENSORS; b++) {
 			for (int c = 0; c < opt.NEURON_CELLS; c++) {
 				for (Segment s : segments[b][c]) {
-					if (getActiveSizeOfConnectedSynapses(s, time) > opt.NEURON_ACTIVATION_THRESHOLD) {
+					if (getActiveSizeOfConnectedSynapses(s, time) >= opt.NEURON_ACTIVATION_THRESHOLD) {
 						predictive[b][c][time] = true;
 						SegmentUpdate activeUpdate = getSegmentActiveSynapses(s, time, false);
 						segmentUpdateList[b][c].add(activeUpdate);
@@ -116,13 +122,19 @@ public class Columns {
 			}
 		}
 		set_output();
-		return State.TRAIN;
+		return State.LEARNING;
 	}
 
 	private void set_output() {
+		prediction = false;
 		for (int b = 0; b < opt.SENSORS; b++) {
 			for (int c = 0; c < opt.NEURON_CELLS; c++) {
-				output.set(b, c, active[b][c][time] || predictive[b][c][time]);
+				boolean pr = predictive[b][c][time];
+				boolean ac = active[b][c][time];
+				if (pr && !ac) {
+					prediction = true;
+				}
+				output.set(b, c, ac || pr);
 			}
 		}
 	}
@@ -136,66 +148,72 @@ public class Columns {
 			for (int c = 0; c < opt.NEURON_CELLS; c++) {
 				if (predictive[b][c][oldt]) {
 					Segment s = getActiveSegment(b, c, oldt);
-					if(s != null && s.sequenceSegment){
+					if (s != null && s.sequenceSegment) {
 						buPredicted = true;
 						active[b][c][time] = true;
 					}
 				}
 			}
-			if(!buPredicted){
+			if (!buPredicted) {
 				for (int c = 0; c < opt.NEURON_CELLS; c++) {
 					active[b][c][time] = true;
-				}				
+				}
 			}
 		}
 		for (int b = 0; b < opt.SENSORS; b++) {
 			for (int c = 0; c < opt.NEURON_CELLS; c++) {
-				for (Segment s: segments[b][c]) {
-					if(getActiveSizeOfConnectedSynapses(s, time) > opt.NEURON_ACTIVATION_THRESHOLD){
+				for (Segment s : segments[b][c]) {
+					if (getActiveSizeOfConnectedSynapses(s, time) >= opt.NEURON_ACTIVATION_THRESHOLD) {
 						predictive[b][c][time] = true;
 					}
 				}
 			}
 		}
 		set_output();
-		return State.LEARNED;
+		return State.TESTING;
 	}
 
 	private void adaptSegments(int b, int c, boolean positiveReinforcement) {
 		for (SegmentUpdate segmentUpdate : segmentUpdateList[b][c]) {
 			Segment targetSegment = segmentUpdate.segment;
 			if (targetSegment == null) {
+				if(!positiveReinforcement){
+					System.out.println("Weird!");
+				}
 				addSegment(b, c, segmentUpdate);
 				continue;
 			}
-			HashSet<Synapse> synapses = targetSegment.synapses;
+			HashSet<Synapse> connectedSynapses = targetSegment.connectedSynapses;
 			HashSet<Synapse> possibleSynapses = targetSegment.possibleSynapses;
 			HashSet<Synapse> updates = new HashSet<Synapse>(segmentUpdate.updatedSynapses);
 			if (positiveReinforcement) {
-				for (Synapse s: possibleSynapses) {
+				for (Synapse s : possibleSynapses) {
 					if (updates.contains(s)) {
-						s.addPermanence(opt.NEURON_PERMANENCE_INC);
+						int permanence = s.addPermanence(opt.NEURON_PERMANENCE_INC);
+						if (permanence >= opt.PERMANENCE_CONNECTED) {
+							connectedSynapses.add(s);
+						}
 						updates.remove(s);
 					} else {
 						int permanence = s.decPermanence(opt.NEURON_PERMANENCE_DEC);
 						if (permanence < opt.PERMANENCE_CONNECTED) {
-							synapses.remove(s);
+							connectedSynapses.remove(s);
 						}
 					}
 				}
 				for (Synapse new_synapse : updates) {
 					if (new_synapse.isNew()) {
 						new_synapse.setPermanence(opt.PERMANENCE_INITIAL);
-						synapses.add(new_synapse);
+						connectedSynapses.add(new_synapse);
 						possibleSynapses.add(new_synapse);
 					}
 				}
 			} else {
-				for (Synapse s: possibleSynapses) {
+				for (Synapse s : possibleSynapses) {
 					if (updates.contains(s)) {
 						int permanence = s.decPermanence(opt.NEURON_PERMANENCE_DEC);
 						if (permanence < opt.PERMANENCE_CONNECTED) {
-							synapses.remove(s);
+							connectedSynapses.remove(s);
 						}
 					}
 				}
@@ -207,9 +225,9 @@ public class Columns {
 		if (!segmentUpdate.updatedSynapses.isEmpty()) {
 			Segment segment = new Segment();
 			segment.sequenceSegment = segmentUpdate.sequenceSegment;
-			segment.synapses = segmentUpdate.updatedSynapses;
+			segment.connectedSynapses = segmentUpdate.updatedSynapses;
 			segment.possibleSynapses = new HashSet<Synapse>(segmentUpdate.updatedSynapses);
-			for (Synapse s : segment.synapses) {
+			for (Synapse s : segment.connectedSynapses) {
 				s.setPermanence(opt.PERMANENCE_INITIAL);
 			}
 			segments[b][c].add(segment);
@@ -275,7 +293,7 @@ public class Columns {
 		SegmentUpdate update = new SegmentUpdate();
 		HashSet<Synapse> items = new HashSet<Synapse>();
 		if (segment != null) {
-			for (Synapse synapse : segment.synapses) {
+			for (Synapse synapse : segment.connectedSynapses) {
 				if (active[synapse.bit][synapse.cell][time]) {
 					items.add(synapse);
 				}
@@ -300,7 +318,7 @@ public class Columns {
 
 	private int getActiveSizeOfConnectedSynapses(Segment segment, int time) {
 		int count = 0;
-		for (Synapse synapse : segment.synapses) {
+		for (Synapse synapse : segment.connectedSynapses) {
 			if (active[synapse.bit][synapse.cell][time]) {
 				count += 1;
 			}
@@ -310,7 +328,7 @@ public class Columns {
 
 	private int getLearnActiveSize(Segment segment, int time) {
 		int count = 0;
-		for (Synapse synapse : segment.synapses) {
+		for (Synapse synapse : segment.connectedSynapses) {
 			if (learn[synapse.bit][synapse.cell][time]) {
 				count += 1;
 			}
@@ -324,7 +342,7 @@ public class Columns {
 		boolean pretender_sequence = false;
 		for (Segment segment : segments[bit][cell]) {
 			int value = getActiveSizeOfConnectedSynapses(segment, time);
-			if (value > opt.NEURON_ACTIVATION_THRESHOLD) {
+			if (value >= opt.NEURON_ACTIVATION_THRESHOLD) {
 				if (pretender_sequence && !segment.sequenceSegment)
 					continue;
 				if (segment.sequenceSegment && !pretender_sequence) {
@@ -338,5 +356,35 @@ public class Columns {
 			}
 		}
 		return pretender;
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		for (int s = 0; s < 2; s++) {
+			final int moment = (s == 0) ? time : 1 - time;
+			builder.append(String.format("Active %s:\n", (s == 0) ? "now" : "before"));
+			builder.append(Utils.render(opt.SENSORS, opt.NEURON_CELLS, new Renderer() {
+				public char paint(int position) {
+					int b = position / opt.SENSORS;
+					int c = position % opt.SENSORS;
+					boolean sa = active[b][c][moment];
+					boolean sl = learn[b][c][moment];
+					boolean sp = predictive[b][c][moment];
+					int val = (sa ? 1 : 0) + (sl ? 2 : 0) + (sp ? 4 : 0);
+					char flags[] = { Utils.BLACK__0, // ---
+							Utils.BLACK_50, // A
+							'l', // L
+							'L', // LA
+							'P', // P
+							'*', // P A
+							'&', // PL
+							Utils.BLACK100, // PLA
+					};
+					return flags[val];
+				}
+			}));
+		}
+		return builder.toString();
 	}
 }

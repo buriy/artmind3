@@ -54,7 +54,7 @@ class Server {
 				if (state == State.RESTART) {
 					out.append("RESTART\n");
 					out.flush();
-				} else if (state == State.LEARNED) {
+				} else if (state == State.TESTING) {
 					out.append("LEARNED\n");
 					out.flush();
 				}
@@ -108,7 +108,7 @@ class Server {
 			String supervised = command[4];
 			return network.train(data, supervised);
 		}
-		return State.TRAIN;
+		return State.LEARNING;
 	}
 
 	private String test(String[] command, BufferedReader in) throws IOException, UnsupportedDataException {

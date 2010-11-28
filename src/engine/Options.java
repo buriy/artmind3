@@ -10,15 +10,17 @@ import util.FloatOption;
 import util.IntOption;
 
 public class Options {
+	public static final int DEBUG_STRIP = 52;
 
-	public boolean SEQUENTIAL_LEARNING = true;
+	public boolean SEQUENTIAL_LEARNING = false;
+
 	public int LEARN_TIME = 10 * 10 * 30;
 
 	@IntOption(min = 256, max = 1024)
-	public int SENSORS = 512;
+	public int SENSORS = 256;
 
 	@IntOption(min = 1, max = 4)
-	public int LAYERS = 1;
+	public int LAYERS = 2;
 
 	@IntOption(min = 1, max = 8)
 	public int NEURON_CELLS = 3;

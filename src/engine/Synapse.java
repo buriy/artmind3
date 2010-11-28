@@ -18,10 +18,11 @@ public class Synapse {
 		this.perm = value;
 	}
 
-	void addPermanence(int value) {
+	int addPermanence(int value) {
 		if(perm == NOT_INITIALIZED)
 			throw new IllegalStateException("Should use setPermanence on new Synapse");
 		perm = Math.min(perm + value, 100);
+		return perm;
 	}
 
 	public int decPermanence(int value) {

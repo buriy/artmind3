@@ -12,7 +12,7 @@ public class Node {
 	}
 
 	public State operate() {
-		return State.LEARNED;
+		return State.TESTING;
 	}
 	
 	boolean isLearning(){
