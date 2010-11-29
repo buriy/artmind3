@@ -15,21 +15,21 @@ public class UpperNode extends Node {
 		this.displayed = new TreeMap<String, Integer>();
 	}
 
-	public State train(int maxLearnTime, String supervised) {
+	public NetState train(int maxLearnTime, String supervised) {
 		int learnTimeLeft = maxLearnTime - learnTime();
 		if (learnTimeLeft >= 0) {
 			learn(supervised);
 			incLearnTime();
 			if (learnTimeLeft == 1) {
-				return State.RESTART;
+				return NetState.RESTART;
 			}
-			return State.LEARNING;
+			return NetState.LEARNING;
 		} else {
-			return State.TESTING;
+			return NetState.TESTING;
 		}
 	}
 
-	public State operate() {
+	public NetState operate() {
 		for (Entry<String, double[]> entry : types.entrySet()) {
 			String key = entry.getKey();
 			double[] value = entry.getValue();
@@ -42,7 +42,7 @@ public class UpperNode extends Node {
 			}
 			output.set(key, sum * 100);
 		}
-		return State.TESTING;
+		return NetState.TESTING;
 	}
 
 	public void learn(String supervised) {

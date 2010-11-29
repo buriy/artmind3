@@ -19,17 +19,17 @@ public class InnerNode extends Node {
 	}
 
 	@Override
-	public State operate() {
+	public NetState operate() {
 		int[] bits = sensors.operate();
-		State state;
+		NetState state;
 		if (learnTime < opt.LEARN_TIME) {
 			incLearnTime();
 			state = neurons.learn(bits);
 			if(neurons.prediction() && layer == 1){
-				state = State.LEARNING;
+				state = NetState.LEARNING;
 			}
 			if (learnTime == opt.LEARN_TIME - 1) {
-				state = State.RESTART;
+				state = NetState.RESTART;
 			}
 		} else {
 			state = neurons.run(bits);

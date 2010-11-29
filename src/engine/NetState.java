@@ -1,5 +1,5 @@
 package engine;
 
-public enum State {
+public enum NetState {
 	RESTART, LEARNING, TESTING;
 }

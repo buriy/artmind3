@@ -1,9 +1,5 @@
 package engine;
 
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
 import util.Utils;
 
 public class Sensors {

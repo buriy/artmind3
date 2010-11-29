@@ -25,13 +25,13 @@ public class Network {
 		this.supervisor = new UpperNode(input_layer, this.output, options);
 	}
 
-	public State train(byte[] data, String supervised) {
+	public NetState train(byte[] data, String supervised) {
 		input.data = data;
-		State state;
+		NetState state;
 		for (Node node : nodes) {
 			state = node.operate();
 			if (opt.SEQUENTIAL_LEARNING) {
-				if (state == State.LEARNING || state == State.RESTART)
+				if (state == NetState.LEARNING || state == NetState.RESTART)
 					return state;
 			}
 		}

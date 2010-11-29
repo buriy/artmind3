@@ -51,16 +51,16 @@ public class Columns {
 
 	private void init() {
 		learningCells[time] = new ArrayList<Synapse>();
-		for (int i = 0; i < opt.SENSORS; i++) {
-			for (int j = 0; j < opt.NEURON_CELLS; j++) {
-				active[i][j][time] = false;
-				learn[i][j][time] = false;
-				predictive[i][j][time] = false;
+		for (int b = 0; b < opt.SENSORS; b++) {
+			for (int c = 0; c < opt.NEURON_CELLS; c++) {
+				active[b][c][time] = false;
+				learn[b][c][time] = false;
+				predictive[b][c][time] = false;
 			}
 		}
 	}
 
-	public State learn(int[] activeColumns) {
+	public NetState learn(int[] activeColumns) {
 		int oldt = time;
 		time = 1 - time;
 		init();
@@ -122,7 +122,7 @@ public class Columns {
 			}
 		}
 		set_output();
-		return State.LEARNING;
+		return NetState.LEARNING;
 	}
 
 	private void set_output() {
@@ -139,7 +139,7 @@ public class Columns {
 		}
 	}
 
-	public State run(int[] activeColumns) {
+	public NetState run(int[] activeColumns) {
 		int oldt = time;
 		time = 1 - time;
 		init();
@@ -170,7 +170,7 @@ public class Columns {
 			}
 		}
 		set_output();
-		return State.TESTING;
+		return NetState.TESTING;
 	}
 
 	private void adaptSegments(int b, int c, boolean positiveReinforcement) {
@@ -189,20 +189,20 @@ public class Columns {
 				for (Synapse s : possibleSynapses) {
 					if (updates.contains(s)) {
 						int permanence = s.addPermanence(opt.NEURON_PERMANENCE_INC);
-						if (permanence >= opt.PERMANENCE_CONNECTED) {
+						if (permanence >= opt.NEURON_PERMANENCE_CONNECTED) {
 							connectedSynapses.add(s);
 						}
 						updates.remove(s);
 					} else {
 						int permanence = s.decPermanence(opt.NEURON_PERMANENCE_DEC);
-						if (permanence < opt.PERMANENCE_CONNECTED) {
+						if (permanence < opt.NEURON_PERMANENCE_CONNECTED) {
 							connectedSynapses.remove(s);
 						}
 					}
 				}
 				for (Synapse new_synapse : updates) {
 					if (new_synapse.isNew()) {
-						new_synapse.setPermanence(opt.PERMANENCE_INITIAL);
+						new_synapse.setPermanence(opt.NEURON_PERMANENCE_INITIAL);
 						connectedSynapses.add(new_synapse);
 						possibleSynapses.add(new_synapse);
 					}
@@ -211,7 +211,7 @@ public class Columns {
 				for (Synapse s : possibleSynapses) {
 					if (updates.contains(s)) {
 						int permanence = s.decPermanence(opt.NEURON_PERMANENCE_DEC);
-						if (permanence < opt.PERMANENCE_CONNECTED) {
+						if (permanence < opt.NEURON_PERMANENCE_CONNECTED) {
 							connectedSynapses.remove(s);
 						}
 					}
@@ -227,7 +227,7 @@ public class Columns {
 			segment.connectedSynapses = segmentUpdate.updatedSynapses;
 			segment.possibleSynapses = new HashSet<Synapse>(segmentUpdate.updatedSynapses);
 			for (Synapse s : segment.connectedSynapses) {
-				s.setPermanence(opt.PERMANENCE_INITIAL);
+				s.setPermanence(opt.NEURON_PERMANENCE_INITIAL);
 			}
 			segments[b][c].add(segment);
 		}
@@ -316,12 +316,15 @@ public class Columns {
 	}
 
 	private int getActiveSizeOfConnectedSynapses(Segment segment, int time) {
+		if(segment.activeSizeConnected[time] != -1)
+			return segment.activeSizeConnected[time];
 		int count = 0;
 		for (Synapse synapse : segment.connectedSynapses) {
 			if (active[synapse.bit][synapse.cell][time]) {
 				count += 1;
 			}
 		}
+		segment.activeSizeConnected[time] = count;
 		return count;
 	}
 

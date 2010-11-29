@@ -35,6 +35,12 @@ public class Options {
 	public int NEURON_MIN_THRESHOLD = 2;
 
 	@IntOption(min = 1, max = 100)
+	public int NEURON_PERMANENCE_CONNECTED = 10;
+
+	@IntOption(min = 1, max = 100)
+	public int NEURON_PERMANENCE_INITIAL = 20;
+
+	@IntOption(min = 1, max = 100)
 	public int NEURON_PERMANENCE_INC = 10;
 
 	@IntOption(min = 1, max = 100)
@@ -48,12 +54,6 @@ public class Options {
 
 	@IntOption(min = 1, max = 255 * 32 * 32)
 	public int SENSOR_MIN_OVERLAP = 500;
-
-	@IntOption(min = 1, max = 100)
-	public int PERMANENCE_CONNECTED = 10;
-
-	@IntOption(min = 1, max = 100)
-	public int PERMANENCE_INITIAL = 30;
 
 	@IntOption(min = 1, max = 100)
 	public int SENSOR_PERMANENCE_INC = 10;

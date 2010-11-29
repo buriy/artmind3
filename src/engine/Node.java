@@ -11,8 +11,8 @@ public class Node {
         this.learnTime = 0;
 	}
 
-	public State operate() {
-		return State.TESTING;
+	public NetState operate() {
+		return NetState.TESTING;
 	}
 	
 	boolean isLearning(){
