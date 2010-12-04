@@ -36,7 +36,7 @@ public class Network {
 			}
 		}
 		// int maxLearnTime = nodes[options.LAYERS - 1].learnTime();
-		return supervisor.train(opt.LEARN_TIME, supervised);
+		return supervisor.train(opt.learnTime(), supervised);
 	}
 
 	public String run(byte[] data) {

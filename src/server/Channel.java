@@ -84,9 +84,6 @@ public class Channel extends Thread {
 				out.flush();
 				System.out.println("Options sent!");
 			} else if ("CREATE".equals(action)) {
-				if (network != null) {
-					throw new UnsupportedCommandException("Network already exists!");
-				}
 				try {
 					create(command, in);
 				} catch (Exception e) {
@@ -94,6 +91,8 @@ public class Channel extends Thread {
 					throw new UnsupportedDataException("Command failed.");
 				}
 				System.out.println("Network created!");
+				out.append("READY\n");
+				out.flush();
 			} else if ("QUIT".equals(action)) {
 				halt[0] = true;
 				return false;
@@ -110,9 +109,10 @@ public class Channel extends Thread {
 		Options options = new Options();
 		for (int i = 0; i < lines; i++) {
 			String opt = in.readLine();
-			String[] parts = opt.split(" ", 1);
-			options.setOption(parts[0], parts[1]);
+			String[] parts = opt.split("=", 2);
+			options.setOption(parts[0].trim(), parts[1].trim());
 		}
+		this.network = null;
 		this.network = new Network(options);
 	}
 

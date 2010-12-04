@@ -22,13 +22,13 @@ public class InnerNode extends Node {
 	public NetState operate() {
 		int[] bits = sensors.operate();
 		NetState state;
-		if (learnTime < opt.LEARN_TIME) {
+		if (learnTime < opt.learnTime()) {
 			incLearnTime();
 			state = neurons.learn(bits);
 			if(neurons.prediction() && layer == 1){
 				state = NetState.LEARNING;
 			}
-			if (learnTime == opt.LEARN_TIME - 1) {
+			if (learnTime == opt.learnTime() - 1) {
 				state = NetState.RESTART;
 			}
 		} else {

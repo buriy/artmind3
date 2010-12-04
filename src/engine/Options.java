@@ -13,8 +13,10 @@ public class Options {
 	public static final int DEBUG_STRIP = 52;
 
 	public boolean SEQUENTIAL_LEARNING = false;
+	public int ROUND_TIME = 10 * 10 * 30;
 
-	public int LEARN_TIME = 10 * 10 * 30;
+	@IntOption(min = 1, max = 3)
+	public int LEARN_ROUNDS = 1;
 
 	@IntOption(min = 256, max = 1024)
 	public int SENSORS = 256;
@@ -52,7 +54,7 @@ public class Options {
 	@IntOption(min = 1, max = 40)
 	public int SENSOR_WINNERS = 8;
 
-	@IntOption(min = 1, max = 255 * 32 * 32)
+	@IntOption(min = 1, max = 255 * 32 * 32 / 10)
 	public int SENSOR_MIN_OVERLAP = 500;
 
 	@IntOption(min = 1, max = 100)
@@ -108,12 +110,31 @@ public class Options {
 		return output.toArray(new String[0]);
 	}
 
+	public int learnTime() {
+		return LEARN_ROUNDS * ROUND_TIME;
+	}
+
 	private static boolean isValidName(String name) {
 		return name.equals(name.toUpperCase());
 	}
 
 	public void setOption(String key, String value) throws IllegalArgumentException, SecurityException, IllegalAccessException, NoSuchFieldException {
-		this.getClass().getField(key).set(this, value);
+		Field field = this.getClass().getField(key);
+		String type = availableTypes.get(field.getType());
+		if("int".equals(type)){
+			field.setInt(this, Integer.parseInt(value));
+		}else if("float".equals(type)){
+			field.setDouble(this, Double.parseDouble(value));
+		}else if("bool".equals(type)){
+			String bool = value.toLowerCase();
+			if("1".equals(bool) || "true".equals(bool) || "on".equals(bool)){
+				field.setBoolean(this, true);
+			}else{
+				field.setBoolean(this, false);
+			}
+		}else {
+			throw new IllegalArgumentException("Unsupported field "+field.getName()+" of type "+field.getType());
+		}
 	}
 
 	@Override
