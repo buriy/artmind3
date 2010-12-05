@@ -37,12 +37,20 @@ public class Channel extends Thread {
 			while (command(in, out))
 				;
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (UnsupportedCommandException e) {
-			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (OutOfMemoryError e) {
+			e.printStackTrace();
+		} catch (RuntimeException e) {
 			e.printStackTrace();
 		}
+		try {
+			client.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		network = null;
 	}
 
 	public boolean command(BufferedReader in, BufferedWriter out) throws IOException,

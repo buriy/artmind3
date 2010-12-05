@@ -23,15 +23,18 @@ class Server extends Thread{
 		this.server = new ServerSocket(this.port);
 		this.start();
 		while(!halt[0]){
-			Iterator<Channel> iterator = clients.iterator();
-			while(iterator.hasNext()){
-				Channel next = iterator.next();
-				if(!next.isAlive()){
-			        System.out.println("Client disconnected.");
-					iterator.remove();
+			synchronized(clients){
+				Iterator<Channel> iterator = clients.iterator();
+				while(iterator.hasNext()){
+					Channel next = iterator.next();
+					if(!next.isAlive()){
+				        int alive = clients.size()-1;
+						System.out.println("Client disconnected. "+alive+" client(s) are alive.");
+						iterator.remove();
+					}
 				}
 			}
-			Thread.sleep(10);
+			Thread.sleep(50);
 		}
         server.close();
 	}
@@ -42,12 +45,14 @@ class Server extends Thread{
 				Socket client = this.server.accept();
 				Channel chan = new Channel(client, halt);
 				chan.start();
-				clients.add(chan);
+				synchronized(clients){
+					clients.add(chan);
+				}
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 			try {
-				Thread.sleep(10);
+				Thread.sleep(50);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
