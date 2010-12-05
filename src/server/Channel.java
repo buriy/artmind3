@@ -88,7 +88,7 @@ public class Channel extends Thread {
 					create(command, in);
 				} catch (Exception e) {
 					e.printStackTrace();
-					throw new UnsupportedDataException("Command failed.");
+					throw new UnsupportedCommandException("Command failed.");
 				}
 				System.out.println("Network created!");
 				out.append("READY\n");

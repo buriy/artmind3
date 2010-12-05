@@ -78,22 +78,25 @@ public class Options {
 
 	private static String fieldInfo(Field field) {
 		String type = availableTypes.get(field.getType());
-		if(type == null){
-			throw new IllegalArgumentException("Unsupported field "+field.getName()+" of type "+field.getType());
+		if (type == null) {
+			throw new IllegalArgumentException("Unsupported field " + field.getName() + " of type "
+					+ field.getType());
 		}
 		for (Annotation ann : field.getAnnotations()) {
 			if (ann instanceof IntOption) {
 				IntOption opt = (IntOption) ann;
-				if(!type.equals("int")){
-					throw new IllegalArgumentException("Can't use IntField on "+field.getName()+" of type "+field.getType());
+				if (!type.equals("int")) {
+					throw new IllegalArgumentException("Can't use IntField on " + field.getName()
+							+ " of type " + field.getType());
 				}
-				type = "int (" + opt.min() + " .. " + opt.max()+")";
+				type = "int (" + opt.min() + " .. " + opt.max() + ")";
 			} else if (ann instanceof FloatOption) {
 				FloatOption opt = (FloatOption) ann;
-				if(!type.equals("float")){
-					throw new IllegalArgumentException("Can't use FloatField on "+field.getName()+" of type "+field.getType());
+				if (!type.equals("float")) {
+					throw new IllegalArgumentException("Can't use FloatField on " + field.getName()
+							+ " of type " + field.getType());
 				}
-				type = "float (" + opt.min() + " .. " + opt.max()+")";
+				type = "float (" + opt.min() + " .. " + opt.max() + ")";
 			}
 		}
 		return type;
@@ -118,22 +121,55 @@ public class Options {
 		return name.equals(name.toUpperCase());
 	}
 
-	public void setOption(String key, String value) throws IllegalArgumentException, SecurityException, IllegalAccessException, NoSuchFieldException {
+	public void setOption(String key, String value) throws IllegalArgumentException, SecurityException,
+			IllegalAccessException, NoSuchFieldException {
 		Field field = this.getClass().getField(key);
 		String type = availableTypes.get(field.getType());
-		if("int".equals(type)){
-			field.setInt(this, Integer.parseInt(value));
-		}else if("float".equals(type)){
-			field.setDouble(this, Double.parseDouble(value));
-		}else if("bool".equals(type)){
+		if ("int".equals(type)) {
+			int intValue = Integer.parseInt(value);
+			checkIntValue(field, intValue);
+			field.setInt(this, intValue);
+		} else if ("float".equals(type)) {
+			double doubleValue = Double.parseDouble(value);
+			checkDoubleValue(field, doubleValue);
+			field.setDouble(this, doubleValue);
+		} else if ("bool".equals(type)) {
 			String bool = value.toLowerCase();
-			if("1".equals(bool) || "true".equals(bool) || "on".equals(bool)){
+			if ("1".equals(bool) || "true".equals(bool)) {
 				field.setBoolean(this, true);
-			}else{
+			} else if ("0".equals(bool) || "false".equals(bool)) {
 				field.setBoolean(this, false);
+			} else {
+				throw new IllegalArgumentException("Value for field " + field.getName() + " of type "
+						+ field.getType() + " is out of range!");
 			}
-		}else {
-			throw new IllegalArgumentException("Unsupported field "+field.getName()+" of type "+field.getType());
+		} else {
+			throw new IllegalArgumentException("Unsupported field " + field.getName() + " of type "
+					+ field.getType());
+		}
+	}
+
+	private void checkIntValue(Field field, int intValue) {
+		for (Annotation ann : field.getAnnotations()) {
+			if (ann instanceof IntOption) {
+				IntOption opt = (IntOption) ann;
+				if (intValue < opt.min() || intValue > opt.max()) {
+					throw new IllegalArgumentException("Value for field " + field.getName() + " of type "
+							+ field.getType() + " is out of range!");
+				}
+			}
+		}
+	}
+
+	private void checkDoubleValue(Field field, double doubleValue) {
+		for (Annotation ann : field.getAnnotations()) {
+			if (ann instanceof FloatOption) {
+				FloatOption opt = (FloatOption) ann;
+				if (doubleValue < opt.min() || doubleValue > opt.max()) {
+					throw new IllegalArgumentException("Value for field " + field.getName() + " of type "
+							+ field.getType() + " is out of range!");
+				}
+			}
 		}
 	}
 
@@ -144,9 +180,9 @@ public class Options {
 
 	private String configuration() {
 		StringBuilder sb = new StringBuilder();
-		for(Field field: this.getClass().getDeclaredFields()){
+		for (Field field : this.getClass().getDeclaredFields()) {
 			String name = field.getName();
-			if (isValidName(name)){
+			if (isValidName(name)) {
 				String type = fieldInfo(field);
 				Object value = "(error)";
 				try {
