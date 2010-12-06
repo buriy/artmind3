@@ -15,13 +15,13 @@ public class Options {
 	public boolean SEQUENTIAL_LEARNING = false;
 	public int ROUND_TIME = 10 * 10 * 30;
 
-	@IntOption(min = 1, max = 3)
+	@IntOption(min = 1, max = 4)
 	public int LEARN_ROUNDS = 1;
 
-	@IntOption(min = 256, max = 1024)
+	@IntOption(min = 256, max = 1500)
 	public int SENSORS = 256;
 
-	@IntOption(min = 1, max = 4)
+	@IntOption(min = 1, max = 3)
 	public int LAYERS = 2;
 
 	@IntOption(min = 1, max = 8)
@@ -30,10 +30,10 @@ public class Options {
 	@IntOption(min = 1, max = 40)
 	public int NEURON_NEW_SYNAPSES = 10;
 
-	@IntOption(min = 1, max = 20)
+	@IntOption(min = 1, max = 40)
 	public int NEURON_ACTIVATION_THRESHOLD = 5;
 
-	@IntOption(min = 1, max = 20)
+	@IntOption(min = 1, max = 40)
 	public int NEURON_MIN_THRESHOLD = 2;
 
 	@IntOption(min = 1, max = 100)
@@ -48,7 +48,7 @@ public class Options {
 	@IntOption(min = 1, max = 100)
 	public int NEURON_PERMANENCE_DEC = 5;
 
-	@FloatOption(min = 0, max = 10)
+	@FloatOption(min = 0, max = 20)
 	public double SENSOR_BOOST = 0.3;
 
 	@IntOption(min = 1, max = 40)

@@ -1,2 +1,2 @@
 #!/bin/sh
-java -Xmx1024m -cp bin server.Main
+java -Xmx1280m -cp bin server.Main
