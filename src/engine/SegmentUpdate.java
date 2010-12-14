@@ -6,7 +6,7 @@ import java.util.HashSet;
 public class SegmentUpdate {
 	public Segment segment;
 	public boolean sequenceSegment;
-	public HashSet<Synapse> updatedSynapses;
+	public HashSet<Integer> updatedSynapses;
 	
 	@Override
 	public String toString() {

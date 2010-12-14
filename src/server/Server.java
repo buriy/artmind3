@@ -43,10 +43,15 @@ class Server extends Thread{
 		while(!halt[0]){
 			try {
 				Socket client = this.server.accept();
-				Channel chan = new Channel(client, halt);
-				chan.start();
-				synchronized(clients){
-					clients.add(chan);
+				try{
+					Channel chan = new Channel(client, halt);
+					chan.start();
+					synchronized(clients){
+						clients.add(chan);
+					}
+				}catch(OutOfMemoryError e){
+					e.printStackTrace();
+					continue;
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
