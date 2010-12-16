@@ -84,7 +84,8 @@ public class Channel extends Thread {
 				out.append("RESULT " + value + "\n");
 				out.flush();
 			} else if ("OPTIONS".equals(action)) {
-				String[] fields = Options.fields();
+				Options options = new Options();
+				String[] fields = options.fields();
 				out.append("OPTIONS " + fields.length + "\n");
 				for (String f : fields) {
 					out.append(f + "\n");

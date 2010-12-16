@@ -42,7 +42,7 @@ public class Sensors {
 	}
 
 	protected int[] getWinners(int[] values) {
-		int[] winners = Utils.binarize(values, opt.SENSOR_WINNERS);
+		int[] winners = Utils.binarize(values, opt.SENSORS_LOCAL_WINNERS);
 		return winners;
 	}
 

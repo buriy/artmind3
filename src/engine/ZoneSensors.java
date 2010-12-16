@@ -23,7 +23,6 @@ public class ZoneSensors extends Sensors {
 				}
 			}
 		}
-		radius2=1;
 	}
 
 	protected void createSensors(Options opt, Field input) {
@@ -36,13 +35,13 @@ public class ZoneSensors extends Sensors {
 	protected boolean isWinner(int[] values, int source) {
 		if(values[source] == 0)
 			return false;
-		if(nearest[source].size() <= opt.SENSOR_WINNERS){
+		if(nearest[source].size() <= opt.SENSORS_LOCAL_WINNERS){
 			return true;
 		}
 		TreeSet<Integer> winners = new TreeSet<Integer>();
 		Integer candidate = 0;
 		for(int j: nearest[source]){
-			if(winners.size() < opt.SENSOR_WINNERS){
+			if(winners.size() < opt.SENSORS_LOCAL_WINNERS){
 				winners.add(values[j]);
 				candidate = winners.first();
 			} else {

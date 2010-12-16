@@ -45,15 +45,18 @@ public class Options {
 	@IntOption(min = 1, max = 100)
 	public int NEURON_PERMANENCE_INITIAL = 34;
 	
-	@IntOption(min = 256, max = 1500)
+	@IntOption(min = 256, max = 1024)
 	public int SENSORS = 256;
 	
-	@IntOption(min = 1, max = 40)
+	@IntOption(min = 1, max = 25)
 	public int SENSORS_RADIUS = 4;
 
 	@FloatOption(min = 0.1, max = 4)
 	public double SENSORS_DISTANCE = 1.5;
 
+	@IntOption(min = 1, max = 10)
+	public int SENSORS_LOCAL_WINNERS = 5;
+	
 	@FloatOption(min = 0, max = 20)
 	public double SENSOR_BOOST = 3.5;
 
@@ -72,9 +75,6 @@ public class Options {
 	@IntOption(min = 1, max = 100)
 	public int SENSOR_PERMANENCE_INITIAL = 31;
 
-	@IntOption(min = 1, max = 40)
-	public int SENSOR_WINNERS = 5;
-	
 	static Map<Class<?>, String> availableTypes = new HashMap<Class<?>, String>();
 	static {
 		availableTypes.put(int.class, "int");
@@ -108,12 +108,18 @@ public class Options {
 		return type;
 	}
 
-	public static String[] fields() {
+	public String[] fields() {
 		ArrayList<String> output = new ArrayList<String>();
 		for (Field field : Options.class.getDeclaredFields()) {
 			String name = field.getName();
 			if (isValidName(name)) {
-				output.add(name + ": " + fieldInfo(field));
+				Object value = null;
+				try {
+					value = field.get(this);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				output.add(name + ": " + fieldInfo(field) + " = " + value);
 			}
 		}
 		return output.toArray(new String[0]);
