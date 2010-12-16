@@ -15,7 +15,11 @@ public class InnerNode extends Node {
 		this.output = output;
 		this.layer = number;
 		this.neurons = new Columns(opt, output);
-		this.sensors = new Sensors(opt, input);
+		if(number == 0){
+			this.sensors = new ZoneSensors(opt, input);
+		}else{
+			this.sensors = new Sensors(opt, input);
+		}
 	}
 
 	@Override
@@ -25,8 +29,10 @@ public class InnerNode extends Node {
 		if (learnTime < opt.learnTime()) {
 			incLearnTime();
 			state = neurons.learn(bits);
-			if(neurons.prediction() && layer == 1){
-				state = NetState.LEARNING;
+			if(layer == 0){
+				if(neurons.prediction()){
+					state = NetState.LEARNING;
+				}
 			}
 			if (learnTime == opt.learnTime() - 1) {
 				state = NetState.RESTART;

@@ -63,4 +63,9 @@ public class IntField implements Field {
 			}
 		}).toString();
 	}
+
+	@Override
+	public boolean test(int x, int y) {
+		return data[(y * width + x)] >= 128;
+	}
 }

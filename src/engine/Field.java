@@ -8,6 +8,7 @@ public interface Field {
 	int get(int pos);
 	int get(int x, int y);
 	boolean test(int pos);
+	boolean test(int x, int y);
 	void set(int x, int y, int value);
 	void set(int x, int y, boolean value);
 	

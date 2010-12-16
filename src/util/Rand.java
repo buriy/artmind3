@@ -15,4 +15,8 @@ public class Rand {
 		return INSTANCE.rand.nextInt(n);
 	}
 
+	public static int range(int from, int to){
+		return range(to-from+1) + from;
+	}
+
 }

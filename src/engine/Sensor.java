@@ -1,15 +1,13 @@
 package engine;
 
-import util.Rand;
 import util.Renderer;
 import util.Utils;
 
-public class Sensor {
-	int[] permanence;
-	private final Field field;
+public abstract class Sensor {
+	protected final Field field;
+	protected final Options opt;
 
-	double boost;
-	private final Options opt;
+	private double boost;
 	private double activeDutyCycle;
 	private double overlapDutyCycle;
 
@@ -17,21 +15,12 @@ public class Sensor {
 		this.activeDutyCycle = 0;
 		this.field = field;
 		this.opt = opt;
-		this.permanence = new int[field.size()];
-		for (int i = 0; i < permanence.length; i++) {
-			permanence[i] = Rand.range(100);
-		}
 		boost = 1;
 	}
 
 	public int sum() {
-		int overlap = 0;
+		int overlap = getOverlap();
 
-		for (int i = 0; i < permanence.length; i++) {
-			if (permanence[i] >= opt.SENSOR_PERMANENCE_CONNECTED) {
-				overlap += field.get(i);
-			}
-		}
 		if (overlap < opt.SENSOR_MIN_OVERLAP) {
 			overlap = 0;
 		} else {
@@ -46,13 +35,7 @@ public class Sensor {
 	}
 
 	public void updateWinner() {
-		for (int i = 0; i < permanence.length; i++) {
-			if (field.test(i)) {
-				permanence[i] = Math.min(permanence[i] + opt.SENSOR_PERMANENCE_INC, 100);
-			} else {
-				permanence[i] = Math.max(permanence[i] - opt.SENSOR_PERMANENCE_DEC, 0);
-			}
-		}
+		updatePermanence();
 		activeDutyCycle += 0.001;
 	}
 
@@ -64,10 +47,7 @@ public class Sensor {
 		double minDutyCycle = 0.01 * maxDutyCycle;
 		boost = boostFunction(activeDutyCycle, minDutyCycle);
 		if (overlapDutyCycle < minDutyCycle) {
-			for (int i = 0; i < permanence.length; i++) {
-				double increase = permanence[i] + 0.1 * opt.SENSOR_PERMANENCE_CONNECTED;
-				permanence[i] = (int) Math.min(increase, 100);
-			}
+			boostPermanence();
 		}
 	}
 
@@ -78,14 +58,21 @@ public class Sensor {
 	}
 
 	public String toString() {
-		StringBuilder result = Utils.render(field.width(), field.height(), new Renderer(){
+		StringBuilder result = Utils.render(field.width(), field.height(), new Renderer() {
 			public char paint(int position) {
-				return Utils.color100(permanence[position]);
+				return Utils.color100(getPermanence(position));
 			}
 		});
-		result.append("\nboost="+boost);
-		result.append("\nactiveDutyCycle="+activeDutyCycle);
-		result.append("\noverlapDutyCycle="+overlapDutyCycle);
+		result.append("\nboost=" + boost);
+		result.append("\nactiveDutyCycle=" + activeDutyCycle);
+		result.append("\noverlapDutyCycle=" + overlapDutyCycle);
 		return result.toString();
 	}
+
+	protected abstract int getOverlap();
+	protected abstract int getPermanence(int position);
+	protected abstract void updatePermanence();
+	protected abstract void boostPermanence();
+	public abstract int distanceTo(Sensor rhs);
 }
+

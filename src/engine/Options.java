@@ -19,7 +19,7 @@ public class Options {
 	public int LAYERS = 1;
 
 	@IntOption(min = 1, max = 4)
-	public int LEARN_ROUNDS = 1;
+	public int LEARN_ROUNDS = 2;
 	
 	@IntOption(min = 1, max = 40)
 	public int NEURON_ACTIVATION_THRESHOLD = 11;
@@ -46,13 +46,19 @@ public class Options {
 	public int NEURON_PERMANENCE_INITIAL = 34;
 	
 	@IntOption(min = 256, max = 1500)
-	public int SENSORS = 958;
+	public int SENSORS = 256;
 	
+	@IntOption(min = 1, max = 40)
+	public int SENSORS_RADIUS = 4;
+
+	@FloatOption(min = 0.1, max = 4)
+	public double SENSORS_DISTANCE = 1.5;
+
 	@FloatOption(min = 0, max = 20)
 	public double SENSOR_BOOST = 3.5;
 
 	@IntOption(min = 1, max = 255 * 32 * 32 / 10)
-	public int SENSOR_MIN_OVERLAP = 3188;
+	public int SENSOR_MIN_OVERLAP = 500;
 
 	@IntOption(min = 1, max = 100)
 	public int SENSOR_PERMANENCE_CONNECTED = 53;
@@ -67,7 +73,7 @@ public class Options {
 	public int SENSOR_PERMANENCE_INITIAL = 31;
 
 	@IntOption(min = 1, max = 40)
-	public int SENSOR_WINNERS = 7;
+	public int SENSOR_WINNERS = 5;
 	
 	static Map<Class<?>, String> availableTypes = new HashMap<Class<?>, String>();
 	static {
