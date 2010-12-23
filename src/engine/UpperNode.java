@@ -36,7 +36,7 @@ public class UpperNode extends Node {
 			int count = displayed.get(key);
 			double sum = 0;
 			for (int i = 0; i < input.size(); i++) {
-				if(input.test(i)){
+				if (input.test(i)) {
 					sum += value[i] / count;
 				}
 			}

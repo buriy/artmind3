@@ -10,12 +10,12 @@ public class Segment {
 	HashSet<Integer> connected = new HashSet<Integer>();
 	HashMap<Integer, Integer> synapses = new HashMap<Integer, Integer>();
 
-	public Segment(int cell) {
+	public Segment(int bit, int cell) {
 		this.cell = cell;
 	}
-	
+
 	@Override
 	public String toString() {
-		return "seq="+sequenceSegment+"\nsyn="+connected.toString();
+		return "seq=" + sequenceSegment + "\ncon=" + connected.toString() + "\nsyn=" + synapses.toString();
 	}
 }

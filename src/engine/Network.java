@@ -47,15 +47,15 @@ public class Network {
 		supervisor.operate();
 		return output.toString();
 	}
-	
+
 	@Override
 	public String toString() {
-		byte[] source = fields[opt.LAYERS-1].data;
+		byte[] source = fields[opt.LAYERS - 1].data;
 		int[] values = new int[source.length];
-		for(int i=0; i<source.length; i++){
+		for (int i = 0; i < source.length; i++) {
 			values[i] = source[i] & 0xFF;
 		}
-		for(int layer=opt.LAYERS-1; layer>=0; layer--){
+		for (int layer = opt.LAYERS - 1; layer >= 0; layer--) {
 			InnerNode node = nodes[layer];
 			values = node.restore(values);
 		}

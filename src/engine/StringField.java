@@ -16,16 +16,16 @@ public class StringField {
 	@Override
 	public String toString() {
 		StringBuilder result = new StringBuilder("");
-		Set<Entry<String,Double>> entries = data.entrySet();
+		Set<Entry<String, Double>> entries = data.entrySet();
 		double maxValue = -1e99;
 		String maxKey = "";
 		for (Entry<String, Double> entry : entries) {
-			if(entry.getValue() > maxValue){
+			if (entry.getValue() > maxValue) {
 				maxValue = entry.getValue();
 				maxKey = entry.getKey();
 			}
 		}
-		result.append(maxKey+"\n");
+		result.append(maxKey + "\n");
 		result.append("(\n");
 		DecimalFormat df = new DecimalFormat("#.#");
 		for (Entry<String, Double> entry : entries) {

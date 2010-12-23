@@ -15,22 +15,22 @@ public class InnerNode extends Node {
 		this.output = output;
 		this.layer = number;
 		this.neurons = new Columns(opt, output);
-		if(number == 0){
+		if (number == 0) {
 			this.sensors = new ZoneSensors(opt, input);
-		}else{
+		} else {
 			this.sensors = new Sensors(opt, input);
 		}
 	}
 
 	@Override
 	public NetState operate() {
-		int[] bits = sensors.operate();
 		NetState state;
 		if (learnTime < opt.learnTime()) {
+			int[] bits = sensors.learn();
 			incLearnTime();
 			state = neurons.learn(bits);
-			if(layer == 0){
-				if(neurons.prediction()){
+			if (layer == 0) {
+				if (neurons.prediction()) {
 					state = NetState.LEARNING;
 				}
 			}
@@ -38,6 +38,7 @@ public class InnerNode extends Node {
 				state = NetState.RESTART;
 			}
 		} else {
+			int[] bits = sensors.run();
 			state = neurons.run(bits);
 		}
 		return state;
@@ -60,11 +61,11 @@ public class InnerNode extends Node {
 			for (int j = 0; j < output.height(); j++) {
 				actives += output.get(i, j);
 			}
-			if(actives != 0)
+			if (actives != 0)
 				active.add(i);
 		}
 		int[] values = new int[active.size()];
-		for(int i=0; i<values.length; i++)
+		for (int i = 0; i < values.length; i++)
 			values[i] = active.get(i);
 		return values;
 	}

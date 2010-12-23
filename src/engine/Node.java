@@ -6,16 +6,16 @@ public class Node {
 	protected int learnTime;
 
 	public Node(Field input_field, Options opt) {
-        this.input = input_field;
-        this.opt = opt;
-        this.learnTime = 0;
+		this.input = input_field;
+		this.opt = opt;
+		this.learnTime = 0;
 	}
 
 	public NetState operate() {
 		return NetState.TESTING;
 	}
-	
-	boolean isLearning(){
+
+	boolean isLearning() {
 		return false;
 	}
 
@@ -24,7 +24,7 @@ public class Node {
 	}
 
 	protected void incLearnTime() {
-		learnTime ++;
+		learnTime++;
 	}
 
 }
