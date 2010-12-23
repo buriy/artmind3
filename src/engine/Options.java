@@ -18,14 +18,14 @@ public class Options {
 	@IntOption(min = 1, max = 3)
 	public int LAYERS = 1;
 
-	@IntOption(min = 1, max = 4)
-	public int LEARN_ROUNDS = 2;
+	@IntOption(min = 1, max = 10)
+	public int LEARN_ROUNDS = 4;
 
 	@IntOption(min = 1, max = 40)
 	public int NEURON_ACTIVATION_THRESHOLD = 10;
 
 	@IntOption(min = 1, max = 8)
-	public int NEURON_CELLS = 1;
+	public int NEURON_CELLS = 2;
 
 	@IntOption(min = 1, max = 40)
 	public int NEURON_MIN_THRESHOLD = 3;
@@ -34,7 +34,7 @@ public class Options {
 	public int NEURON_NEW_SYNAPSES = 20;
 
 	@IntOption(min = 1, max = 100)
-	public int NEURON_PERMANENCE_CONNECTED = 63;
+	public int NEURON_PERMANENCE_CONNECTED = 60;
 
 	@IntOption(min = 1, max = 100)
 	public int NEURON_PERMANENCE_DEC = 15;
@@ -43,40 +43,46 @@ public class Options {
 	public int NEURON_PERMANENCE_INC = 20;
 
 	@IntOption(min = 1, max = 100)
-	public int NEURON_PERMANENCE_INITIAL = 34;
+	public int NEURON_PERMANENCE_INITIAL = 20;
 
 	@IntOption(min = 16, max = 1024)
-	public int SENSORS = 512;
+	public int SENSORS = 1024;
 
 	@IntOption(min = 1, max = 25)
-	public int SENSORS_RADIUS = 7;
+	public int SENSORS_RADIUS = 4;
 
 	@FloatOption(min = 0.1, max = 4)
-	public double SENSORS_DISTANCE = 0.8;
+	public double SENSORS_ZONE_DISTANCE = 0.9;
 
 	@IntOption(min = 1, max = 10)
-	public int SENSORS_LOCAL_WINNERS = 10;
+	public int SENSORS_WINNERS = 10;
+
+	@IntOption(min = 1, max = 10)
+	public int SENSORS_ZONE_WINNERS = 3;
 
 	@FloatOption(min = 0, max = 20)
-	public double SENSOR_BOOST = 3.5;
+	public double SENSOR_BOOST = 0.5;
 
 	@IntOption(min = 100, max = 10000)
 	public int SENSOR_BOOST_TIME = 1000;
 
 	@IntOption(min = 1, max = 255 * 32 * 32 / 10)
+	public int SENSOR_ZONE_OVERLAP = 1500;
+
+	@IntOption(min = 1, max = 255 * 32 * 32 / 10)
 	public int SENSOR_MIN_OVERLAP = 500;
 
 	@IntOption(min = 1, max = 100)
-	public int SENSOR_PERMANENCE_CONNECTED = 53;
+	public int SENSOR_PERMANENCE_CONNECTED = 70;
 
 	@IntOption(min = 1, max = 100)
-	public int SENSOR_PERMANENCE_DEC = 2;
+	public int SENSOR_PERMANENCE_DEC = 7;
 
 	@IntOption(min = 1, max = 100)
-	public int SENSOR_PERMANENCE_INC = 14;
+	public int SENSOR_PERMANENCE_INC = 10;
 
-	@IntOption(min = 1, max = 100)
-	public int SENSOR_PERMANENCE_INITIAL = 31;
+//	@IntOption(min = 1, max = 100)
+//	public int SENSOR_PERMANENCE_INITIAL = 10;
 
 	static Map<Class<?>, String> availableTypes = new HashMap<Class<?>, String>();
 	static {

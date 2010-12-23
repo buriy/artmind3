@@ -44,6 +44,13 @@ public class ZoneSensor extends Sensor {
 				}
 			}
 		}
+
+		if (overlap < opt.SENSOR_ZONE_OVERLAP) {
+			overlap = 0;
+		} else {
+			overlap *= boost;
+		}
+
 		return overlap;
 	}
 
@@ -66,6 +73,14 @@ public class ZoneSensor extends Sensor {
 				zone[x][y] = (byte) Math.min(increase, 100);
 			}
 		}
+	}
+
+	protected int getDebugPermanence(int position) {
+		return getPermanence(position);
+//		int x = position % field.width();
+//		int y = position / field.width();
+//		if (x != centerX || y != centerY) return 0;
+//		return 255;
 	}
 
 	protected int getPermanence(int position) {

@@ -32,7 +32,7 @@ public class Sensors {
 	}
 
 	protected int[] getWinners(int[] values) {
-		int[] winners = Utils.binarize(values, opt.SENSORS_LOCAL_WINNERS);
+		int[] winners = Utils.binarize(values, opt.SENSORS_WINNERS);
 		return winners;
 	}
 
@@ -53,7 +53,7 @@ public class Sensors {
 			int value = 0;
 			for (int j = 0; j < winners.length; j++) {
 				Sensor winner = sensors[winners[j]];
-				value += winner.getPermanence(i);
+				value += winner.getDebugPermanence(i);
 			}
 			values[i] = value;
 		}

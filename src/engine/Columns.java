@@ -21,6 +21,7 @@ public class Columns {
 	private boolean prediction;
 	private int time;
 	private SynapseMapper smap;
+	protected final int layer;
 
 	public boolean isLearning() {
 		return isLearning;
@@ -31,8 +32,9 @@ public class Columns {
 	}
 
 	@SuppressWarnings("unchecked")
-	public Columns(Options opt, Field output) {
+	public Columns(Options opt, Field output, int layer) {
 		this.opt = opt;
+		this.layer = layer;
 		this.smap = new SynapseMapper(opt);
 		this.output = output;
 		this.time = 0;
@@ -124,6 +126,9 @@ public class Columns {
 			}
 		}
 		set_output();
+		if(layer == 2){
+			return NetState.LEARNING;
+		}
 		return NetState.LEARNING;
 	}
 
@@ -188,6 +193,10 @@ public class Columns {
 	private void adaptSegments(int bit, int cell, boolean positiveReinforcement) {
 		for (SegmentUpdate segmentUpdate : segmentUpdateList[bit][cell]) {
 			Segment targetSegment = segmentUpdate.segment;
+			if(targetSegment == null){
+				targetSegment = new Segment(bit, cell);
+				segments[bit][cell].add(targetSegment);
+			}
 			HashSet<Integer> connected = targetSegment.connected;
 			HashMap<Integer, Integer> synapses = targetSegment.synapses;
 			HashSet<Integer> updates = new HashSet<Integer>(segmentUpdate.updatedSynapses);
@@ -334,26 +343,25 @@ public class Columns {
 	 */
 	private SegmentUpdate getSegmentActiveSynapses(Segment segment, int time, boolean newSynapses) {
 		SegmentUpdate update = new SegmentUpdate();
-		HashSet<Integer> items = new HashSet<Integer>();
+		update.updatedSynapses = new HashSet<Integer>();
 		if (segment != null) {
 			for (Integer synapse : segment.connected) {
 				if (getActive(synapse, time)) {
-					items.add(synapse);
+					update.updatedSynapses.add(synapse);
 				}
 			}
 		}
 		update.segment = segment;
-		update.updatedSynapses = items;
 		if (!newSynapses) {
 			return update;
 		}
-		int to_add = opt.NEURON_NEW_SYNAPSES - items.size();
+		int to_add = opt.NEURON_NEW_SYNAPSES - update.updatedSynapses.size();
 		ArrayList<Integer> choices = learningCells[time];
 		if (to_add > 0) {
 			Collection<Integer> samples = Utils.sample(choices.size(), Math.min(to_add, choices.size()));
 			for (int index : samples) {
 				Integer proto = choices.get(index);
-				items.add(proto);
+				update.updatedSynapses.add(proto);
 			}
 		}
 		return update;
@@ -436,13 +444,14 @@ public class Columns {
 					boolean sl = getLearn(b, c, moment);
 					boolean sp = getPredicted(b, c, moment);
 					int val = (sa ? 1 : 0) + (sl ? 2 : 0) + (sp ? 4 : 0);
-					char flags[] = { Utils.BLACK__0, // ---
-							Utils.BLACK_50, // A
-							'l', // L
-							'L', // LA
-							'P', // P
-							'*', // P A
-							'&', // PL
+					char flags[] = { 
+							Utils.BLACK__0, // ---
+							Utils.BLACK_50, // --A
+							'l', 			// -L-
+							'L', 			// -LA
+							'P', 			// P--
+							'*', 			// P-A
+							'&', 			// PL-
 							Utils.BLACK100, // PLA
 					};
 					return flags[val];

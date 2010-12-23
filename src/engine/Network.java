@@ -55,10 +55,11 @@ public class Network {
 		for (int i = 0; i < source.length; i++) {
 			values[i] = source[i] & 0xFF;
 		}
+//		values[9] = 255;
 		for (int layer = opt.LAYERS - 1; layer >= 0; layer--) {
 			InnerNode node = nodes[layer];
 			values = node.restore(values);
 		}
-		return Utils.renderValues(input.width(), input.height(), values).toString();
+		return Utils.renderValues(input.width(), input.height(), values).toString() + " -> "+supervisor.toString();
 	}
 }

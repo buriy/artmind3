@@ -10,12 +10,12 @@ public class InnerNode extends Node {
 	protected Sensors sensors;
 	private final int layer;
 
-	public InnerNode(Field input, Field output, Options opt, int number) {
+	public InnerNode(Field input, Field output, Options opt, int layer) {
 		super(input, opt);
 		this.output = output;
-		this.layer = number;
-		this.neurons = new Columns(opt, output);
-		if (number == 0) {
+		this.layer = layer;
+		this.neurons = new Columns(opt, output, layer);
+		if (layer == 0) {
 			this.sensors = new ZoneSensors(opt, input);
 		} else {
 			this.sensors = new Sensors(opt, input);
@@ -29,6 +29,12 @@ public class InnerNode extends Node {
 			int[] bits = sensors.learn();
 			incLearnTime();
 			state = neurons.learn(bits);
+			if (layer == 1) {
+				state = NetState.LEARNING;
+			}
+			if (layer == 2) {
+				state = NetState.LEARNING;
+			}
 			if (layer == 0) {
 				if (neurons.prediction()) {
 					state = NetState.LEARNING;

@@ -9,7 +9,7 @@ public class SegmentUpdate {
 
 	@Override
 	public String toString() {
-		return "seq=" + sequenceSegment + "\nsyn=" + updatedSynapses.toString() + "\nfor segment:\n"
+		return "seq=" + sequenceSegment + "\nsyn=" + updatedSynapses + "\nfor segment:\n"
 				+ segment;
 	}
 }

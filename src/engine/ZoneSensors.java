@@ -14,7 +14,7 @@ public class ZoneSensors extends Sensors {
 		for (int i = 0; i < opt.SENSORS; ++i) {
 			nearest[i] = new LinkedList<Integer>();
 		}
-		double rd = opt.SENSORS_RADIUS * opt.SENSORS_DISTANCE + 1e-8;
+		double rd = opt.SENSORS_RADIUS * opt.SENSORS_ZONE_DISTANCE + 1e-8;
 		int radius2 = (int) (rd * rd);
 		for (int i = 0; i < count; i++) {
 			for (int j = 0; j < count; j++) {
@@ -35,13 +35,13 @@ public class ZoneSensors extends Sensors {
 	protected boolean isWinner(int[] values, int source) {
 		if (values[source] == 0)
 			return false;
-		if (nearest[source].size() <= opt.SENSORS_LOCAL_WINNERS) {
+		if (nearest[source].size() <= opt.SENSORS_ZONE_WINNERS) {
 			return true;
 		}
 		TreeSet<Integer> winners = new TreeSet<Integer>();
 		Integer candidate = 0;
 		for (int j : nearest[source]) {
-			if (winners.size() < opt.SENSORS_LOCAL_WINNERS) {
+			if (winners.size() < opt.SENSORS_ZONE_WINNERS) {
 				winners.add(values[j]);
 				candidate = winners.first();
 			} else {

@@ -7,7 +7,7 @@ public abstract class Sensor {
 	protected final Field field;
 	protected final Options opt;
 
-	private double boost;
+	protected double boost;
 	private double activeDutyCycle;
 	private double overlapDutyCycle;
 	private double revTime;
@@ -23,11 +23,6 @@ public abstract class Sensor {
 	public int sum() {
 		int overlap = getOverlap();
 
-		if (overlap < opt.SENSOR_MIN_OVERLAP) {
-			overlap = 0;
-		} else {
-			overlap *= boost;
-		}
 		activeDutyCycle = activeDutyCycle * (1 - revTime);
 		overlapDutyCycle = overlapDutyCycle * (1 - revTime);
 		if (overlap > 0) {
@@ -65,13 +60,14 @@ public abstract class Sensor {
 		});
 		result.append("\nboost=" + boost);
 		result.append("\nactiveDutyCycle=" + activeDutyCycle);
-		result.append("\noverlapDutyCycle=" + overlapDutyCycle);
+		result.append("\noverlapDutyCycle=" + overlapDutyCycle+"\n");
 		return result.toString();
 	}
 
 	protected abstract int getOverlap();
 
 	protected abstract int getPermanence(int position);
+	protected abstract int getDebugPermanence(int position);
 
 	protected abstract void updatePermanence();
 

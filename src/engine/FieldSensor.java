@@ -23,6 +23,13 @@ public class FieldSensor extends Sensor {
 				overlap += field.get(i);
 			}
 		}
+
+		if (overlap < opt.SENSOR_MIN_OVERLAP) {
+			overlap = 0;
+		} else {
+			overlap *= boost;
+		}
+
 		return overlap;
 	}
 
@@ -50,5 +57,10 @@ public class FieldSensor extends Sensor {
 	@Override
 	public int distanceTo(Sensor rhs) {
 		return 0;
+	}
+
+	@Override
+	protected int getDebugPermanence(int position) {
+		return getPermanence(position);
 	}
 }

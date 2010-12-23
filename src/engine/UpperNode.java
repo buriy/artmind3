@@ -60,4 +60,9 @@ public class UpperNode extends Node {
 			}
 		}
 	}
+	
+	@Override
+	public String toString() {
+		return output.toString();
+	}
 }
