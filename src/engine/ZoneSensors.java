@@ -33,19 +33,19 @@ public class ZoneSensors extends Sensors {
 	}
 
 	protected boolean isWinner(int[] values, int source) {
-		if(values[source] == 0)
+		if (values[source] == 0)
 			return false;
-		if(nearest[source].size() <= opt.SENSORS_LOCAL_WINNERS){
+		if (nearest[source].size() <= opt.SENSORS_LOCAL_WINNERS) {
 			return true;
 		}
 		TreeSet<Integer> winners = new TreeSet<Integer>();
 		Integer candidate = 0;
-		for(int j: nearest[source]){
-			if(winners.size() < opt.SENSORS_LOCAL_WINNERS){
+		for (int j : nearest[source]) {
+			if (winners.size() < opt.SENSORS_LOCAL_WINNERS) {
 				winners.add(values[j]);
 				candidate = winners.first();
 			} else {
-				if(candidate < values[j]){
+				if (candidate < values[j]) {
 					winners.add(values[j]);
 					winners.remove(candidate);
 					candidate = winners.first();
@@ -66,6 +66,26 @@ public class ZoneSensors extends Sensors {
 		int[] winners = new int[size];
 		for (int i = 0; i < size; i++) {
 			winners[i] = candidates.poll();
+		}
+		return winners;
+	}
+
+	@Override
+	public int[] learn() {
+		int[] winners = operate();
+		double maxDutyCycle[] = new double[sensors.length];
+		for (int i = 0; i < sensors.length; ++i) {
+			for (int j : nearest[i]) {
+				if (sensors[j].activeDutyCycle() > maxDutyCycle[i]) {
+					maxDutyCycle[i] = sensors[j].activeDutyCycle();
+				}
+			}
+		}
+		for (int i = 0; i < winners.length; i++) {
+			sensors[winners[i]].updateWinner();
+		}
+		for (int i = 0; i < sensors.length; i++) {
+			sensors[i].updateSensor(maxDutyCycle[i]);
 		}
 		return winners;
 	}

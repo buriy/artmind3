@@ -23,21 +23,11 @@ public class Sensors {
 
 	protected int[] operate() {
 		int[] values = new int[sensors.length];
-		double maxDutyCycle = 0;
 		for (int i = 0; i < values.length; ++i) {
 			values[i] = sensors[i].sum();
-			if (sensors[i].activeDutyCycle() > maxDutyCycle) {
-				maxDutyCycle = sensors[i].activeDutyCycle();
-			}
 		}
 		int[] winners = getWinners(values);
 		last_winners = winners;
-		for (int i = 0; i < winners.length; i++) {
-			sensors[winners[i]].updateWinner();
-		}
-		for (int i = 0; i < sensors.length; i++) {
-			sensors[i].updateSensor(maxDutyCycle);
-		}
 		return winners;
 	}
 
@@ -82,5 +72,26 @@ public class Sensors {
 			}
 		}
 		return values;
+	}
+
+	public int[] learn() {
+		int[] winners = operate();
+		double maxDutyCycle = 0;
+		for (int i = 0; i < sensors.length; ++i) {
+			if (sensors[i].activeDutyCycle() > maxDutyCycle) {
+				maxDutyCycle = sensors[i].activeDutyCycle();
+			}
+		}
+		for (int i = 0; i < winners.length; i++) {
+			sensors[winners[i]].updateWinner();
+		}
+		for (int i = 0; i < sensors.length; i++) {
+			sensors[i].updateSensor(maxDutyCycle);
+		}
+		return winners;
+	}
+
+	public int[] run() {
+		return operate();
 	}
 }

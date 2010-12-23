@@ -10,11 +10,13 @@ public abstract class Sensor {
 	private double boost;
 	private double activeDutyCycle;
 	private double overlapDutyCycle;
+	private double revTime;
 
 	public Sensor(Options opt, Field field) {
 		this.activeDutyCycle = 0;
 		this.field = field;
 		this.opt = opt;
+		this.revTime = opt.boostTimeRev();
 		boost = 1;
 	}
 
@@ -26,17 +28,17 @@ public abstract class Sensor {
 		} else {
 			overlap *= boost;
 		}
-		activeDutyCycle = activeDutyCycle * 0.999;
-		overlapDutyCycle = overlapDutyCycle * 0.999;
+		activeDutyCycle = activeDutyCycle * (1 - revTime);
+		overlapDutyCycle = overlapDutyCycle * (1 - revTime);
 		if (overlap > 0) {
-			overlapDutyCycle += 0.001;
+			overlapDutyCycle += revTime;
 		}
 		return overlap;
 	}
 
 	public void updateWinner() {
 		updatePermanence();
-		activeDutyCycle += 0.001;
+		activeDutyCycle += revTime;
 	}
 
 	double activeDutyCycle() {
@@ -45,16 +47,14 @@ public abstract class Sensor {
 
 	public void updateSensor(double maxDutyCycle) {
 		double minDutyCycle = 0.01 * maxDutyCycle;
-		boost = boostFunction(activeDutyCycle, minDutyCycle);
+		if (activeDutyCycle < minDutyCycle) {
+			boost = boost + opt.SENSOR_BOOST;
+		} else {
+			boost = 1;
+		}
 		if (overlapDutyCycle < minDutyCycle) {
 			boostPermanence();
 		}
-	}
-
-	private double boostFunction(double activeDutyCycle, double minDutyCycle) {
-		if (activeDutyCycle > minDutyCycle)
-			return 1;
-		return boost + opt.SENSOR_BOOST;
 	}
 
 	public String toString() {
@@ -70,9 +70,12 @@ public abstract class Sensor {
 	}
 
 	protected abstract int getOverlap();
+
 	protected abstract int getPermanence(int position);
+
 	protected abstract void updatePermanence();
+
 	protected abstract void boostPermanence();
+
 	public abstract int distanceTo(Sensor rhs);
 }
-
