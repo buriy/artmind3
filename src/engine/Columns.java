@@ -126,7 +126,7 @@ public class Columns {
 			}
 		}
 		set_output();
-		if(layer == 2){
+		if (layer == 2) {
 			return NetState.LEARNING;
 		}
 		return NetState.LEARNING;
@@ -193,7 +193,7 @@ public class Columns {
 	private void adaptSegments(int bit, int cell, boolean positiveReinforcement) {
 		for (SegmentUpdate segmentUpdate : segmentUpdateList[bit][cell]) {
 			Segment targetSegment = segmentUpdate.segment;
-			if(targetSegment == null){
+			if (targetSegment == null) {
 				targetSegment = new Segment(bit, cell);
 				segments[bit][cell].add(targetSegment);
 			}
@@ -444,14 +444,13 @@ public class Columns {
 					boolean sl = getLearn(b, c, moment);
 					boolean sp = getPredicted(b, c, moment);
 					int val = (sa ? 1 : 0) + (sl ? 2 : 0) + (sp ? 4 : 0);
-					char flags[] = { 
-							Utils.BLACK__0, // ---
+					char flags[] = { Utils.BLACK__0, // ---
 							Utils.BLACK_50, // --A
-							'l', 			// -L-
-							'L', 			// -LA
-							'P', 			// P--
-							'*', 			// P-A
-							'&', 			// PL-
+							'l', // -L-
+							'L', // -LA
+							'P', // P--
+							'*', // P-A
+							'&', // PL-
 							Utils.BLACK100, // PLA
 					};
 					return flags[val];

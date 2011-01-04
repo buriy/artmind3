@@ -1,10 +1,6 @@
 package engine;
 
-import util.Renderer;
-import util.Utils;
-
 public abstract class Sensor {
-	protected final Field field;
 	protected final Options opt;
 
 	protected double boost;
@@ -12,9 +8,10 @@ public abstract class Sensor {
 	private double overlapDutyCycle;
 	private double revTime;
 
-	public Sensor(Options opt, Field field) {
+	protected SensorZone zone;
+
+	public Sensor(Options opt) {
 		this.activeDutyCycle = 0;
-		this.field = field;
 		this.opt = opt;
 		this.revTime = opt.boostTimeRev();
 		boost = 1;
@@ -53,25 +50,22 @@ public abstract class Sensor {
 	}
 
 	public String toString() {
-		StringBuilder result = Utils.render(field.width(), field.height(), new Renderer() {
-			public char paint(int position) {
-				return Utils.color100(getPermanence(position));
-			}
-		});
+		StringBuilder result = new StringBuilder(zone.toString());
 		result.append("\nboost=" + boost);
 		result.append("\nactiveDutyCycle=" + activeDutyCycle);
-		result.append("\noverlapDutyCycle=" + overlapDutyCycle+"\n");
+		result.append("\noverlapDutyCycle=" + overlapDutyCycle + "\n");
 		return result.toString();
 	}
 
 	protected abstract int getOverlap();
-
-	protected abstract int getPermanence(int position);
-	protected abstract int getDebugPermanence(int position);
 
 	protected abstract void updatePermanence();
 
 	protected abstract void boostPermanence();
 
 	public abstract int distanceTo(Sensor rhs);
+
+	public abstract int getDebugPermanence(int i);
+
+	public abstract int getPermanence(int i);
 }

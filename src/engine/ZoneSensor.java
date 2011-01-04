@@ -3,47 +3,20 @@ package engine;
 import util.Rand;
 
 public class ZoneSensor extends Sensor {
-	private byte[][] zone;
-	private int minX;
-	private int minY;
-	private int maxX;
-	private int maxY;
-	private int width;
-	private int height;
 	private int centerX;
 	private int centerY;
 
 	public ZoneSensor(Options opt, Field field) {
-		super(opt, field);
+		super(opt);
+		zone = new ZoneSensorZone(field, opt, centerX, centerY);
 		int r4 = opt.SENSORS_RADIUS / 4;
 		centerX = Rand.range(Math.max(field.width() - r4 * 2, 1)) + r4;
 		centerY = Rand.range(Math.max(field.height() - r4 * 2, 1)) + r4;
-		minX = Math.max(centerX - opt.SENSORS_RADIUS, 0);
-		maxX = Math.min(centerX + opt.SENSORS_RADIUS, field.width() - 1);
-		minY = Math.max(centerY - opt.SENSORS_RADIUS, 0);
-		maxY = Math.min(centerY + opt.SENSORS_RADIUS, field.height() - 1);
-		width = maxX - minX + 1;
-		height = maxY - minY + 1;
-		zone = new byte[width][height];
-
-		for (int x = 0; x < width; x++) {
-			for (int y = 0; y < height; y++) {
-				zone[x][y] = (byte) Rand.range(100);
-			}
-		}
 	}
 
 	@Override
 	protected int getOverlap() {
-		int overlap = 0;
-
-		for (int x = 0; x < width; x++) {
-			for (int y = 0; y < height; y++) {
-				if (zone[x][y] >= opt.SENSOR_PERMANENCE_CONNECTED) {
-					overlap += field.get(x + minX, y + minY);
-				}
-			}
-		}
+		int overlap = zone.getOverlap();
 
 		if (overlap < opt.SENSOR_ZONE_OVERLAP) {
 			overlap = 0;
@@ -55,27 +28,14 @@ public class ZoneSensor extends Sensor {
 	}
 
 	protected void updatePermanence() {
-		for (int x = 0; x < width; x++) {
-			for (int y = 0; y < height; y++) {
-				if (field.test(x + minX, y + minY)) {
-					zone[x][y] = (byte) Math.min(zone[x][y] + opt.SENSOR_PERMANENCE_INC, 100);
-				} else {
-					zone[x][y] = (byte) Math.max(zone[x][y] - opt.SENSOR_PERMANENCE_DEC, 0);
-				}
-			}
-		}
+		zone.updatePermanence();
 	}
 
 	protected void boostPermanence() {
-		for (int x = 0; x < width; x++) {
-			for (int y = 0; y < height; y++) {
-				double increase = zone[x][y] + 0.1 * opt.SENSOR_PERMANENCE_CONNECTED;
-				zone[x][y] = (byte) Math.min(increase, 100);
-			}
-		}
+		zone.boostPermanence();
 	}
 
-	protected int getDebugPermanence(int position) {
+	public int getDebugPermanence(int position) {
 		return getPermanence(position);
 //		int x = position % field.width();
 //		int y = position / field.width();
@@ -83,13 +43,8 @@ public class ZoneSensor extends Sensor {
 //		return 255;
 	}
 
-	protected int getPermanence(int position) {
-		int x = position % field.width();
-		int y = position / field.width();
-		if (x < minX || y < minY || x > maxX || y > maxY) {
-			return 0;
-		}
-		return zone[x - minX][y - minY];
+	public int getPermanence(int position) {
+		return zone.getPermanence(position);
 	}
 
 	public int distanceTo(Sensor rhs) {

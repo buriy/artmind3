@@ -5,9 +5,9 @@ import java.util.ArrayList;
 import util.Utils;
 
 public class InnerNode extends Node {
-	protected Columns neurons;
-	protected Field output;
-	protected Sensors sensors;
+	protected final Columns neurons;
+	protected final Field output;
+	protected final Sensors sensors;
 	private final int layer;
 
 	public InnerNode(Field input, Field output, Options opt, int layer) {
