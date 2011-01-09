@@ -77,7 +77,7 @@ public class ZoneSensorZone implements SensorZone {
 	}
 
 	@Override
-	public int height() {
-		return height;
+	public Field field() {
+		return field;
 	};
 }

@@ -5,46 +5,27 @@ import util.Rand;
 public class ZoneSensor extends Sensor {
 	private int centerX;
 	private int centerY;
+	private ZoneSensorZone mainZone;
 
-	public ZoneSensor(Options opt, Field field) {
+	public ZoneSensor(Options opt, Field main, Field... fields) {
 		super(opt);
-		zone = new ZoneSensorZone(field, opt, centerX, centerY);
 		int r4 = opt.SENSORS_RADIUS / 4;
-		centerX = Rand.range(Math.max(field.width() - r4 * 2, 1)) + r4;
-		centerY = Rand.range(Math.max(field.height() - r4 * 2, 1)) + r4;
-	}
-
-	@Override
-	protected int getOverlap() {
-		int overlap = zone.getOverlap();
-
-		if (overlap < opt.SENSOR_ZONE_OVERLAP) {
-			overlap = 0;
-		} else {
-			overlap *= boost;
+		mainZone = createMainZone(opt, main, r4);
+		zones = new SensorZone[fields.length + 1];
+		int i = 0;
+		zones[i++] = mainZone;
+		for(Field f: fields){
+			zones[i++] = new FieldSensorZone(f, opt);
 		}
-
-		return overlap;
+		zones = new SensorZone[] { mainZone };
 	}
 
-	protected void updatePermanence() {
-		zone.updatePermanence();
-	}
-
-	protected void boostPermanence() {
-		zone.boostPermanence();
-	}
-
-	public int getDebugPermanence(int position) {
-		return getPermanence(position);
-//		int x = position % field.width();
-//		int y = position / field.width();
-//		if (x != centerX || y != centerY) return 0;
-//		return 255;
-	}
-
-	public int getPermanence(int position) {
-		return zone.getPermanence(position);
+	private ZoneSensorZone createMainZone(Options opt, Field field, int r4) {
+		int width = Math.max(field.width() - r4 * 2, 0);
+		int height = Math.max(field.height() - r4 * 2, 0);
+		centerX = Rand.range(width) + r4;
+		centerY = Rand.range(height) + r4;
+		return new ZoneSensorZone(field, opt, centerX, centerY);
 	}
 
 	public int distanceTo(Sensor rhs) {

@@ -8,7 +8,7 @@ public abstract class Sensor {
 	private double overlapDutyCycle;
 	private double revTime;
 
-	protected SensorZone zone;
+	protected SensorZone[] zones;
 
 	public Sensor(Options opt) {
 		this.activeDutyCycle = 0;
@@ -50,22 +50,60 @@ public abstract class Sensor {
 	}
 
 	public String toString() {
-		StringBuilder result = new StringBuilder(zone.toString());
+		StringBuilder result = new StringBuilder();
+		for(SensorZone z: zones){
+			result.append(z.toString());
+		}
 		result.append("\nboost=" + boost);
 		result.append("\nactiveDutyCycle=" + activeDutyCycle);
 		result.append("\noverlapDutyCycle=" + overlapDutyCycle + "\n");
 		return result.toString();
 	}
 
-	protected abstract int getOverlap();
+	protected void updatePermanence() {
+		for(SensorZone zone: zones){
+			zone.updatePermanence();
+		}
+	}
 
-	protected abstract void updatePermanence();
+	protected void boostPermanence() {
+		for(SensorZone zone: zones){
+			zone.boostPermanence();
+		}
+	}
 
-	protected abstract void boostPermanence();
+	protected int getOverlap() {
+		int overlap = 0;
+		for (SensorZone zone : zones) {
+			overlap += zone.getOverlap();
+		}
+	
+		if (overlap < opt.SENSOR_ZONE_OVERLAP) {
+			overlap = 0;
+		} else {
+			overlap *= boost;
+		}
+	
+		return overlap;
+	}
 
-	public abstract int distanceTo(Sensor rhs);
+	SensorZone getZoneForField(Field field){
+		for(SensorZone zone: zones){
+			if(zone.field() == field){
+				return zone;
+			}
+		}
+		return null;
+	}
+	
+	public void sumOverField(int[] values, Field input, double weight) {
+		SensorZone zone = getZoneForField(input);
+		for (int i = 0; i < input.size(); i++) {
+			values[i] += zone.getPermanence(i) * weight;
+		}
+	}
 
-	public abstract int getDebugPermanence(int i);
-
-	public abstract int getPermanence(int i);
+	public int distanceTo(Sensor rhs) {
+		return 0;
+	}
 }

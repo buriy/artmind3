@@ -9,5 +9,5 @@ interface SensorZone {
 
 	void boostPermanence();
 
-	int height();
+	Field field();
 }

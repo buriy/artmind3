@@ -58,7 +58,7 @@ public class FieldSensorZone implements SensorZone {
 		}).toString();
 	}
 
-	public int height() {
-		return field.height();
+	public Field field() {
+		return field;
 	}
 }

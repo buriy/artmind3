@@ -3,8 +3,9 @@ package engine;
 import java.util.LinkedList;
 import java.util.TreeSet;
 
-public class ZoneSensors extends Sensors {
+public class ZoneSensors extends FieldSensors {
 	protected LinkedList<Integer>[] nearest;
+	protected Sensor[] sensors;
 
 	@SuppressWarnings("unchecked")
 	public ZoneSensors(Options opt, Field input) {
@@ -26,7 +27,7 @@ public class ZoneSensors extends Sensors {
 	}
 
 	protected void createSensors(Options opt, Field input) {
-		sensors = new ZoneSensor[opt.SENSORS];
+		sensors = new Sensor[opt.SENSORS];
 		for (int i = 0; i < opt.SENSORS; ++i) {
 			sensors[i] = new ZoneSensor(opt, input);
 		}
@@ -55,7 +56,7 @@ public class ZoneSensors extends Sensors {
 		return values[source] >= candidate;
 	}
 
-	protected int[] getWinners(int[] values) {
+	public int[] getWinners(int[] values) {
 		LinkedList<Integer> candidates = new LinkedList<Integer>();
 		for (int i = 0; i < values.length; i++) {
 			if (isWinner(values, i)) {

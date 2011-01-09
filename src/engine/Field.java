@@ -22,5 +22,4 @@ public interface Field {
 	void reset();
 
 	String toString();
-
 }

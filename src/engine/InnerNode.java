@@ -1,6 +1,6 @@
 package engine;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 
 import util.Utils;
 
@@ -18,7 +18,7 @@ public class InnerNode extends Node {
 		if (layer == 0) {
 			this.sensors = new ZoneSensors(opt, input);
 		} else {
-			this.sensors = new Sensors(opt, input);
+			this.sensors = new FieldSensors(opt, input);
 		}
 	}
 
@@ -56,24 +56,20 @@ public class InnerNode extends Node {
 
 	@Override
 	public String toString() {
-		int[] data = sensors.restoreWinners(firedSensors());
-		return Utils.renderValues(input.width(), input.height(), data).toString();
+		int[] active = firedSensors();
+		return sensors.restoreWinners(active, input);
 	}
 
 	private int[] firedSensors() {
-		ArrayList<Integer> active = new ArrayList<Integer>();
+		HashSet<Integer> active = new HashSet<Integer>();
 		for (int i = 0; i < output.width(); i++) {
-			int actives = 0;
 			for (int j = 0; j < output.height(); j++) {
-				actives += output.get(i, j);
+				if(output.test(i, j)){
+					active.add(i);
+				}
 			}
-			if (actives != 0)
-				active.add(i);
 		}
-		int[] values = new int[active.size()];
-		for (int i = 0; i < values.length; i++)
-			values[i] = active.get(i);
-		return values;
+		return Utils.toIntArray(active);
 	}
 
 	public int[] restore(int[] field) {
@@ -87,7 +83,7 @@ public class InnerNode extends Node {
 			active[i] = actives;
 		}
 		int divider = Utils.maximum(active, 1);
-		int[] data = sensors.restore(active, divider);
+		int[] data = sensors.restore(active, divider, input);
 		return data;
 	}
 }
