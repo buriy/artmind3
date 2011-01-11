@@ -1,8 +1,8 @@
 package util;
 
-import java.util.Comparator;
 
 public class UtilsTests {
+	private static final int SPEED_TEST_CYCLES = 10000;
 	public static boolean USE_NEW_TOPK = true;
 	public static int SPEED_TEST_SIZE = 1024;
 	public static int SPEED_TEST_WINNERS = 5;
@@ -21,20 +21,8 @@ public class UtilsTests {
 	private static void testSort0() {
 		final int[] source = { 0, 0, 0 };
 		final int[] expected = {};
-		int[] actual = topK(source, 3, USE_NEW_TOPK);
+		int[] actual = Utils.binarize2(source, 3);
 		check(actual, expected);
-	}
-
-	private static int[] topK(final int[] source, int winners, boolean use_new) {
-		if(use_new){
-			return Utils.topK(Utils.shuffle(source.length), winners, new Comparator<Integer>() {
-				public int compare(Integer o1, Integer o2) {
-					return source[o2] - (o1 == null ? 1 : source[o1]);
-				}
-			});
-		}else{
-			return Utils.binarize(source, winners);
-		}
 	}
 
 	private static void testSortSpeed(boolean use_new) {
@@ -46,11 +34,17 @@ public class UtilsTests {
 			source[number] = number;
 			expected[winners - i - 1] = number;
 		}
-		int cycles = 10000;
+		int cycles = SPEED_TEST_CYCLES;
 		long start = System.currentTimeMillis();
 		int[] actual = null;
-		for (int i = 0; i < cycles; i++) {
-			actual = topK(source, winners, use_new);
+		if(use_new){
+			for (int i = 0; i < cycles; i++) {
+				actual = Utils.binarize2(source, winners);
+			}
+		}else{
+			for (int i = 0; i < cycles; i++) {
+				actual = Utils.binarize(source, winners);
+			}
 		}
 		check(actual, expected);
 		long spent = System.currentTimeMillis() - start;
@@ -60,21 +54,39 @@ public class UtilsTests {
 	private static void testSort1() {
 		final int[] source = { 9, 7, 0, 0, 0 };
 		final int[] expected = { 0, 1 };
-		int[] actual = topK(source, 2, USE_NEW_TOPK);
+		int[] r;
+		if(USE_NEW_TOPK){
+			r = Utils.binarize2(source, 2);
+		}else{
+			r = Utils.binarize(source, 2);
+		}
+		int[] actual = r;
 		check(actual, expected);
 	}
 
 	private static void testSort2() {
 		final int[] source = { 9, 5, 0, 7, 0, 4, 0 };
 		final int[] expected = { 0, 3, 1 };
-		int[] actual = topK(source, 3, USE_NEW_TOPK);
+		int[] r;
+		if(USE_NEW_TOPK){
+			r = Utils.binarize2(source, 3);
+		}else{
+			r = Utils.binarize(source, 3);
+		}
+		int[] actual = r;
 		check(actual, expected);
 	}
 
 	private static void testSort3() {
 		final int[] source = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
 		final int[] expected = { 8, 7, 6, 5 };
-		int[] actual = topK(source, 4, USE_NEW_TOPK);
+		int[] r;
+		if(USE_NEW_TOPK){
+			r = Utils.binarize2(source, 4);
+		}else{
+			r = Utils.binarize(source, 4);
+		}
+		int[] actual = r;
 		check(actual, expected);
 	}
 

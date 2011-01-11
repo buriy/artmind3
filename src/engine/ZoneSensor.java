@@ -7,10 +7,10 @@ public class ZoneSensor extends Sensor {
 	private int centerY;
 	private ZoneSensorZone mainZone;
 
-	public ZoneSensor(Options opt, Field main, Field... fields) {
+	public ZoneSensor(Options opt, Field... fields) {
 		super(opt);
 		int r4 = opt.SENSORS_RADIUS / 4;
-		mainZone = createMainZone(opt, main, r4);
+		mainZone = createMainZone(opt, fields[0], r4);
 		zones = new SensorZone[fields.length + 1];
 		int i = 0;
 		zones[i++] = mainZone;

@@ -195,4 +195,12 @@ public class Utils {
 		}
 		return values;
 	}
+
+	public static int[] binarize2(final int[] source, int winners) {
+		return topK(shuffle(source.length), winners, new Comparator<Integer>() {
+			public int compare(Integer o1, Integer o2) {
+				return source[o2] - (o1 == null ? 1 : source[o1]);
+			}
+		});
+	}
 }

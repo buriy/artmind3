@@ -1,19 +1,20 @@
 package engine;
 
-import java.util.LinkedList;
-import java.util.TreeSet;
+import java.util.ArrayList;
+import java.util.Comparator;
+
+import util.Utils;
 
 public class ZoneSensors extends FieldSensors {
-	protected LinkedList<Integer>[] nearest;
-	protected Sensor[] sensors;
+	protected ArrayList<Integer>[] nearest;
 
 	@SuppressWarnings("unchecked")
-	public ZoneSensors(Options opt, Field input) {
-		super(opt, input);
+	public ZoneSensors(Options opt, Field... fields) {
+		super(opt, fields);
 		int count = opt.SENSORS;
-		nearest = new LinkedList[count];
+		nearest = new ArrayList[count];
 		for (int i = 0; i < opt.SENSORS; ++i) {
-			nearest[i] = new LinkedList<Integer>();
+			nearest[i] = new ArrayList<Integer>();
 		}
 		double rd = opt.SENSORS_RADIUS * opt.SENSORS_ZONE_DISTANCE + 1e-8;
 		int radius2 = (int) (rd * rd);
@@ -26,49 +27,39 @@ public class ZoneSensors extends FieldSensors {
 		}
 	}
 
-	protected void createSensors(Options opt, Field input) {
-		sensors = new Sensor[opt.SENSORS];
+	protected void createSensors(Field... fields) {
+		sensors = new ZoneSensor[opt.SENSORS];
 		for (int i = 0; i < opt.SENSORS; ++i) {
-			sensors[i] = new ZoneSensor(opt, input);
+			sensors[i] = new ZoneSensor(opt, fields);
 		}
 	}
 
-	protected boolean isWinner(int[] values, int source) {
+	protected boolean isWinner(final int[] values, int source) {
 		if (values[source] == 0)
 			return false;
-		if (nearest[source].size() <= opt.SENSORS_ZONE_WINNERS) {
+		final ArrayList<Integer> neighbours = nearest[source];
+		int size = neighbours.size();
+		if (size <= opt.SENSORS_ZONE_WINNERS) {
 			return true;
 		}
-		TreeSet<Integer> winners = new TreeSet<Integer>();
-		Integer candidate = 0;
-		for (int j : nearest[source]) {
-			if (winners.size() < opt.SENSORS_ZONE_WINNERS) {
-				winners.add(values[j]);
-				candidate = winners.first();
-			} else {
-				if (candidate < values[j]) {
-					winners.add(values[j]);
-					winners.remove(candidate);
-					candidate = winners.first();
-				}
+		final int bottom = values[source];
+		int[] ids = Utils.shuffle(size);
+		int[] winners = Utils.topK(ids, opt.SENSORS_ZONE_WINNERS, new Comparator<Integer>() {
+			public int compare(Integer o1, Integer o2) {
+				return values[neighbours.get(o2)] - (o1 == null ? bottom+1 : values[neighbours.get(o1)]);
 			}
-		}
-		return values[source] >= candidate;
+		});
+		return winners.length < opt.SENSORS_ZONE_WINNERS;
 	}
 
 	public int[] getWinners(int[] values) {
-		LinkedList<Integer> candidates = new LinkedList<Integer>();
+		ArrayList<Integer> candidates = new ArrayList<Integer>();
 		for (int i = 0; i < values.length; i++) {
 			if (isWinner(values, i)) {
 				candidates.add(i);
 			}
 		}
-		int size = candidates.size();
-		int[] winners = new int[size];
-		for (int i = 0; i < size; i++) {
-			winners[i] = candidates.poll();
-		}
-		return winners;
+		return Utils.toIntArray(candidates);
 	}
 
 	@Override
