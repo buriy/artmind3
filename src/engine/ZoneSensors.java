@@ -9,8 +9,8 @@ public class ZoneSensors extends FieldSensors {
 	protected ArrayList<Integer>[] nearest;
 
 	@SuppressWarnings("unchecked")
-	public ZoneSensors(Options opt, Field... fields) {
-		super(opt, fields);
+	public ZoneSensors(Options opt, Field field) {
+		super(opt, field);
 		int count = opt.SENSORS;
 		nearest = new ArrayList[count];
 		for (int i = 0; i < opt.SENSORS; ++i) {
@@ -27,10 +27,11 @@ public class ZoneSensors extends FieldSensors {
 		}
 	}
 
-	protected void createSensors(Field... fields) {
+	protected void createSensors(Field field) {
+		this.fields.add(field);
 		sensors = new ZoneSensor[opt.SENSORS];
 		for (int i = 0; i < opt.SENSORS; ++i) {
-			sensors[i] = new ZoneSensor(opt, fields);
+			sensors[i] = new ZoneSensor(opt, field);
 		}
 	}
 

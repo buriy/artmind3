@@ -14,4 +14,6 @@ public interface Sensors {
 	int[] learn();
 
 	int[] run();
+
+	void addSecondaryInput(Field input);
 }

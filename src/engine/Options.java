@@ -16,7 +16,7 @@ public class Options {
 	public int ROUND_TIME = 10 * 10 * 30;
 
 	@IntOption(min = 1, max = 3)
-	public int LAYERS = 1;
+	public int LAYERS = 2;
 
 	@IntOption(min = 1, max = 10)
 	public int LEARN_ROUNDS = 4;
@@ -61,7 +61,7 @@ public class Options {
 	public int SENSORS_ZONE_WINNERS = 3;
 
 	@FloatOption(min = 0, max = 20)
-	public double SENSOR_BOOST = 0.5;
+	public double SENSOR_BOOST = 2;
 
 	@IntOption(min = 100, max = 10000)
 	public int SENSOR_BOOST_TIME = 1000;

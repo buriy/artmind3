@@ -1,12 +1,18 @@
 package engine;
 
+
 public class FieldSensor extends Sensor {
-	public FieldSensor(Options opt, Field... fields) {
+	public FieldSensor(Options opt, Field field) {
 		super(opt);
-		zones = new SensorZone[fields.length];
-		int i = 0;
-		for(Field f: fields){
-			zones[i++] = new FieldSensorZone(f, opt);
-		}
+		createZones(field);
+	}
+
+	protected void createZones(Field field) {
+		zones.add(new FieldSensorZone(field, opt));
+	}
+
+	@Override
+	void addSecondaryZone(Field field) {
+		zones.add(new FieldSensorZone(field, opt));
 	}
 }

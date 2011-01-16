@@ -1,6 +1,8 @@
 package engine;
 
 import util.Rand;
+import util.Renderer;
+import util.Utils;
 
 public class ZoneSensorZone implements SensorZone {
 	private final byte[][] zone;
@@ -80,4 +82,12 @@ public class ZoneSensorZone implements SensorZone {
 	public Field field() {
 		return field;
 	};
+	
+	public String toString() {
+		return Utils.render(field.width(), field.height(), new Renderer() {
+			public char paint(int position) {
+				return Utils.color100(getPermanence(position));
+			}
+		}).toString();
+	}
 }

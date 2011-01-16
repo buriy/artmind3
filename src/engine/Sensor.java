@@ -1,5 +1,7 @@
 package engine;
 
+import java.util.ArrayList;
+
 public abstract class Sensor {
 	protected final Options opt;
 
@@ -8,15 +10,18 @@ public abstract class Sensor {
 	private double overlapDutyCycle;
 	private double revTime;
 
-	protected SensorZone[] zones;
+	protected ArrayList<SensorZone> zones;
 
 	public Sensor(Options opt) {
 		this.activeDutyCycle = 0;
 		this.opt = opt;
 		this.revTime = opt.boostTimeRev();
+		this.zones = new ArrayList<SensorZone>();
 		boost = 1;
 	}
 
+	abstract void addSecondaryZone(Field field);
+	
 	public int sum() {
 		int overlap = getOverlap();
 
@@ -25,6 +30,7 @@ public abstract class Sensor {
 		if (overlap > 0) {
 			overlapDutyCycle += revTime;
 		}
+		
 		return overlap;
 	}
 

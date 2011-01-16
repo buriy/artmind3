@@ -21,6 +21,12 @@ public class Network {
 			nodes[layer] = new InnerNode(input_layer, fields[layer], options, layer);
 			input_layer = fields[layer];
 		}
+
+		for(int layer = 1; layer < options.LAYERS; layer++){
+			nodes[layer-1].addSecondaryInput(fields[layer]);
+		}
+//		nodes[1].addSecondaryInput(superfield);
+		
 		this.output = new StringField();
 		this.supervisor = new UpperNode(input_layer, this.output, options);
 	}
@@ -36,7 +42,7 @@ public class Network {
 			}
 		}
 		// int maxLearnTime = nodes[options.LAYERS - 1].learnTime();
-		return supervisor.train(opt.learnTime(), supervised);
+		return supervisor.train(opt.ROUND_TIME, supervised);
 	}
 
 	public String run(byte[] data) {
@@ -61,5 +67,10 @@ public class Network {
 			values = node.restore(values);
 		}
 		return Utils.renderValues(input.width(), input.height(), values).toString() + " -> "+supervisor.toString();
+	}
+
+	public void addLearnRounds(int rounds) {
+		opt.LEARN_ROUNDS += rounds;
+		supervisor.restart();
 	}
 }

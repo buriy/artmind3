@@ -62,7 +62,13 @@ public class Channel extends Thread {
 		String[] command = response.split(" ");
 		try {
 			String action = command[0];
-			if ("TRAIN".equals(action)) {
+			if ("TRAIN-MORE".equals(action)) {
+				if (network == null) {
+					throw new UnsupportedCommandException(
+							"Network was not created. Please use CREATE command.");
+				}
+				network.addLearnRounds(Integer.parseInt(command[1]));
+			} else if ("TRAIN".equals(action)) {
 				if (network == null) {
 					throw new UnsupportedCommandException(
 							"Network was not created. Please use CREATE command.");

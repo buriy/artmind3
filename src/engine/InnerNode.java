@@ -22,6 +22,10 @@ public class InnerNode extends Node {
 		}
 	}
 
+	public void addSecondaryInput(Field input){
+		this.sensors.addSecondaryInput(input);
+	}
+	
 	@Override
 	public NetState operate() {
 		NetState state;

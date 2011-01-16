@@ -65,4 +65,10 @@ public class UpperNode extends Node {
 	public String toString() {
 		return output.toString();
 	}
+
+	public void restart() {
+		types.clear();
+		displayed.clear();
+		learnTime = 0;
+	}
 }

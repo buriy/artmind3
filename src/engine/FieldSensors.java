@@ -1,26 +1,36 @@
 package engine;
 
+import java.util.ArrayList;
+
 import util.Utils;
 
 public class FieldSensors implements Sensors {
 	protected Options opt;
 	protected int[] last_winners;
 	protected Sensor[] sensors;
-	protected Field[] fields;
+	protected ArrayList<Field> fields;
 
-	public FieldSensors(Options opt, Field... fields) {
+	public FieldSensors(Options opt, Field field) {
 		this.opt = opt;
-		this.fields = fields;
-		createSensors(fields);
+		this.fields = new ArrayList<Field>();
+		createSensors(field);
 	}
 
-	protected void createSensors(Field... fields) {
+	protected void createSensors(Field field) {
+		this.fields.add(field);
 		this.sensors = new FieldSensor[opt.SENSORS];
 		for (int i = 0; i < sensors.length; i++) {
-			sensors[i] = new FieldSensor(opt, fields);
+			sensors[i] = new FieldSensor(opt, field);
 		}
 	}
 
+	@Override
+	public void addSecondaryInput(Field input) {
+		for (int i = 0; i < sensors.length; i++) {
+			sensors[i].addSecondaryZone(input);
+		}
+	}
+	
 	public int[] operate() {
 		int[] values = new int[sensors.length];
 		for (int i = 0; i < values.length; ++i) {
