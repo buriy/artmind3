@@ -16,7 +16,7 @@ public class Options {
 	public boolean SEQUENTIAL_LEARNING = false;
 	public int ROUND_TIME = 10 * 10 * 30;
 
-	@IntOption(min = 1, max = 3)
+	@IntOption(min = 2, max = 2)
 	public int LAYERS = 2;
 
 	@IntOption(min = 1, max = 10)
