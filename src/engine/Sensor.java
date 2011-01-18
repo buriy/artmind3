@@ -80,11 +80,15 @@ public abstract class Sensor {
 
 	protected int getOverlap() {
 		int overlap = 0;
+		int sum = 0;
+
 		for (SensorZone zone : zones) {
-			overlap += zone.getOverlap();
+			int multiplier = opt.SENSOR_ZONE_MULTIPLIER / zone.size();
+			overlap += zone.getOverlap() * multiplier;
+			sum += zone.size() * multiplier;
 		}
 	
-		if (overlap < opt.SENSOR_ZONE_OVERLAP) {
+		if (overlap < opt.SENSOR_FIELD_OVERLAP * sum / 1024) {
 			overlap = 0;
 		} else {
 			overlap *= boost;

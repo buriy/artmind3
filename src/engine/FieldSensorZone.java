@@ -61,4 +61,9 @@ public class FieldSensorZone implements SensorZone {
 	public Field field() {
 		return field;
 	}
+
+	@Override
+	public int size() {
+		return field.size();
+	}
 }

@@ -10,4 +10,6 @@ interface SensorZone {
 	void boostPermanence();
 
 	Field field();
+
+	int size();
 }

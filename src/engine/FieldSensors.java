@@ -26,6 +26,7 @@ public class FieldSensors implements Sensors {
 
 	@Override
 	public void addSecondaryInput(Field input) {
+		fields.add(input);
 		for (int i = 0; i < sensors.length; i++) {
 			sensors[i].addSecondaryZone(input);
 		}

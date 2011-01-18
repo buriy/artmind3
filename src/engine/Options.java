@@ -12,6 +12,7 @@ import util.IntOption;
 public class Options {
 	public static final int DEBUG_STRIP = 52;
 
+	public boolean SUPERVISOR_SIGNAL = false;
 	public boolean SEQUENTIAL_LEARNING = false;
 	public int ROUND_TIME = 10 * 10 * 30;
 
@@ -70,7 +71,7 @@ public class Options {
 	public int SENSOR_ZONE_OVERLAP = 1500;
 
 	@IntOption(min = 1, max = 255 * 32 * 32 / 10)
-	public int SENSOR_MIN_OVERLAP = 500;
+	public int SENSOR_FIELD_OVERLAP = 1500;
 
 	@IntOption(min = 1, max = 100)
 	public int SENSOR_PERMANENCE_CONNECTED = 70;
@@ -80,6 +81,10 @@ public class Options {
 
 	@IntOption(min = 1, max = 100)
 	public int SENSOR_PERMANENCE_INC = 10;
+
+	public int MAX_SAMPLES = 16;
+
+	public int SENSOR_ZONE_MULTIPLIER = 65536;
 
 //	@IntOption(min = 1, max = 100)
 //	public int SENSOR_PERMANENCE_INITIAL = 10;

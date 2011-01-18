@@ -10,6 +10,26 @@ public class ZoneSensor extends FieldSensor {
 	public ZoneSensor(Options opt, Field field) {
 		super(opt, field);
 	}
+	
+	@Override
+	protected int getOverlap() {
+		int overlap = 0;
+		int sum = 0;
+		
+		for (SensorZone zone : zones) {
+			int multiplier = opt.SENSOR_ZONE_MULTIPLIER / zone.size();
+			overlap += zone.getOverlap() * multiplier;
+			sum += zone.size() * multiplier;
+		}
+		
+		if (overlap < opt.SENSOR_ZONE_OVERLAP * sum / 1024) {
+			overlap = 0;
+		} else {
+			overlap *= boost;
+		}
+		
+		return overlap;
+	}
 
 	protected void createZones(Field field) {
 		int r4 = opt.SENSORS_RADIUS / 4;
@@ -21,11 +41,6 @@ public class ZoneSensor extends FieldSensor {
 		zones.add(mainZone);
 	}
 
-	@Override
-	void addSecondaryZone(Field field) {
-		zones.add(new FieldSensorZone(field, opt));
-	}
-	
 	public int distanceTo(Sensor rhs) {
 		if (rhs instanceof ZoneSensor) {
 			ZoneSensor zs = (ZoneSensor) rhs;

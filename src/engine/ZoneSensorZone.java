@@ -90,4 +90,9 @@ public class ZoneSensorZone implements SensorZone {
 			}
 		}).toString();
 	}
+
+	@Override
+	public int size() {
+		return width * height;
+	}
 }

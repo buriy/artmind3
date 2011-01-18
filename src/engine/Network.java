@@ -6,14 +6,17 @@ public class Network {
 	private ByteField input;
 	private ByteField[] fields;
 	private StringField output;
+	private ByteField superfield;
 	private InnerNode[] nodes;
 	private UpperNode supervisor;
+	
 	private final Options opt;
 
 	public Network(Options options) {
 		this.opt = options;
 		this.input = new ByteField(32, 32);
 		this.fields = new ByteField[options.LAYERS];
+		this.superfield = new ByteField(options.MAX_SAMPLES, 1);
 		this.nodes = new InnerNode[options.LAYERS];
 		Field input_layer = input;
 		for (int layer = 0; layer < options.LAYERS; layer++) {
@@ -25,16 +28,24 @@ public class Network {
 		for(int layer = 1; layer < options.LAYERS; layer++){
 			nodes[layer-1].addSecondaryInput(fields[layer]);
 		}
-//		nodes[1].addSecondaryInput(superfield);
-		
+
 		this.output = new StringField();
 		this.supervisor = new UpperNode(input_layer, this.output, options);
-	}
+
+		if(opt.SUPERVISOR_SIGNAL){
+			nodes[options.LAYERS - 1].addSecondaryInput(superfield);
+		}
+}
 
 	public NetState train(byte[] data, String supervised) {
 		input.data = data;
 		NetState state;
-		for (Node node : nodes) {
+		if(opt.SUPERVISOR_SIGNAL){
+			int id = supervisor.getId(supervised);
+			superfield.reset();
+			superfield.set(id, 0, true);
+		}
+		for (InnerNode node : nodes) {
 			state = node.operate();
 			if (opt.SEQUENTIAL_LEARNING) {
 				if (state == NetState.LEARNING || state == NetState.RESTART)
@@ -47,6 +58,9 @@ public class Network {
 
 	public String run(byte[] data) {
 		input.data = data;
+		if(opt.SUPERVISOR_SIGNAL){
+			superfield.reset();
+		}
 		for (Node node : nodes) {
 			node.operate();
 		}

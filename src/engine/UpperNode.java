@@ -7,12 +7,14 @@ public class UpperNode extends Node {
 	private StringField output;
 	private TreeMap<String, double[]> types;
 	private TreeMap<String, Integer> displayed;
+	private TreeMap<String, Integer> ids;
 
 	public UpperNode(Field input, StringField output, Options opt) {
 		super(input, opt);
 		this.output = output;
 		this.types = new TreeMap<String, double[]>();
 		this.displayed = new TreeMap<String, Integer>();
+		this.ids = new TreeMap<String, Integer>();
 	}
 
 	public NetState train(int maxLearnTime, String supervised) {
@@ -70,5 +72,14 @@ public class UpperNode extends Node {
 		types.clear();
 		displayed.clear();
 		learnTime = 0;
+	}
+
+	public int getId(String supervised) {
+		Integer id = ids.get(supervised);
+		if(id == null){
+			id = ids.size();
+			ids.put(supervised, id);
+		}
+		return id;
 	}
 }

@@ -8,7 +8,7 @@ public class InnerNode extends Node {
 	protected final Columns neurons;
 	protected final Field output;
 	protected final Sensors sensors;
-	private final int layer;
+	protected final int layer;
 
 	public InnerNode(Field input, Field output, Options opt, int layer) {
 		super(input, opt);
@@ -21,7 +21,7 @@ public class InnerNode extends Node {
 			this.sensors = new FieldSensors(opt, input);
 		}
 	}
-
+	
 	public void addSecondaryInput(Field input){
 		this.sensors.addSecondaryInput(input);
 	}

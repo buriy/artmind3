@@ -1,5 +1,7 @@
 package engine;
 
+import java.util.Arrays;
+
 import util.Renderer;
 import util.Utils;
 
@@ -37,9 +39,7 @@ public class ByteField implements Field {
 	}
 
 	public void reset() {
-		for (int i = 0; i < size; i++) {
-			data[i] = 0;
-		}
+		Arrays.fill(data, (byte)0);
 	}
 
 	public void set(int x, int y, int value) {
