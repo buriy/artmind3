@@ -197,7 +197,7 @@ public class Columns {
 			for (int c = 0; c < opt.NEURON_CELLS; c++) {
 				boolean pr = getPredicted(b, c, time);
 				boolean ac = getActive(b, c, time);
-				if (pr && !ac) {
+				if (pr) {
 					prediction = true;
 				}
 				output.set(b, c, ac || pr);
@@ -342,7 +342,7 @@ public class Columns {
 		Integer perm = permanences[key].get(s);
 		if (perm == null)
 			throw new IllegalStateException("Should use setPermanence on new Synapse");
-		perm = Math.min(perm - opt.NEURON_PERMANENCE_INC, 0);
+		perm = Math.max(perm - opt.NEURON_PERMANENCE_INC, 0);
 		permanences[key].put(s, perm);
 		s.synapses.put(key, perm);
 		if (perm <= opt.NEURON_PERMANENCE_CONNECTED) {
