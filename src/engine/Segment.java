@@ -9,6 +9,8 @@ public class Segment {
 	// public int activeSizeConnected[] = new int[2];
 	public boolean sequenceSegment;
 	HashSet<Integer> connected = new HashSet<Integer>();
+	
+	// permanences
 	HashMap<Integer, Integer> synapses = new HashMap<Integer, Integer>();
 
 	public Segment(int bit, int cell) {

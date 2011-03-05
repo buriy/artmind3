@@ -13,7 +13,7 @@ public class Columns {
 	private final Field output;
 	private boolean isLearning;
 	private ArrayList<Segment>[][] segments;
-	private boolean[][][] active;
+	private boolean[][] active;
 	private boolean[][] learn;
 	private boolean[][][] predictive;
 	private ArrayList<Integer>[] learningCells;
@@ -22,6 +22,14 @@ public class Columns {
 	private int time;
 	private SynapseMapper smap;
 	protected final int layer;
+
+	private HashSet<Segment>[] connected;
+	private HashMap<Segment, Integer>[] permanences;
+
+	private HashMap<Segment, Integer>[] sumConnected;
+	private HashMap<Segment, Integer>[] sumPermanences;
+	private HashMap<Segment, Integer>[] sumLearnConnected;
+	
 
 	public boolean isLearning() {
 		return isLearning;
@@ -39,28 +47,76 @@ public class Columns {
 		this.output = output;
 		this.time = 0;
 		isLearning = true;
-		this.active = (new boolean[opt.SENSORS][opt.NEURON_CELLS][2]);
+		this.active = new boolean[smap.synapses()][2];
 		predictive = new boolean[opt.SENSORS][opt.NEURON_CELLS][2];
 		learn = new boolean[smap.synapses()][2];
 		learningCells = new ArrayList[2];
 		learningCells[time] = new ArrayList<Integer>();
 		segments = new ArrayList[opt.SENSORS][opt.NEURON_CELLS];
 		segmentUpdateList = new ArrayList[opt.SENSORS][opt.NEURON_CELLS];
+
+		connected = new HashSet[smap.synapses()];
+		permanences = new HashMap[smap.synapses()];
+		sumConnected = new HashMap[2];
+		sumPermanences = new HashMap[2];
+		sumLearnConnected = new HashMap[2];
+		for (int i = 0; i < 2; i++) {
+			sumConnected[i] = new HashMap<Segment, Integer>();
+			sumPermanences[i] = new HashMap<Segment, Integer>();
+			sumLearnConnected[i] = new HashMap<Segment, Integer>();
+		}
+
 		for (int b = 0; b < opt.SENSORS; b++) {
 			for (int c = 0; c < opt.NEURON_CELLS; c++) {
 				segmentUpdateList[b][c] = new ArrayList<SegmentUpdate>();
 				segments[b][c] = new ArrayList<Segment>();
 			}
 		}
+		for (int key = 0; key < smap.synapses(); key++) {
+			connected[key] = new HashSet<Segment>();
+			permanences[key] = new HashMap<Segment, Integer>();
+		}
 	}
 
 	private void init() {
 		learningCells[time] = new ArrayList<Integer>();
+		sumPermanences[time].clear();
+		sumConnected[time].clear();
 		for (int b = 0; b < opt.SENSORS; b++) {
 			for (int c = 0; c < opt.NEURON_CELLS; c++) {
 				setActive(b, c, time, false);
 				setLearn(b, c, time, false);
 				setPredicted(b, c, time, false);
+			}
+		}
+	}
+
+	private void updateSums() {
+		for (int key = 0; key < smap.synapses(); key++) {
+			if (getActive(key, time)) {
+				for (Segment s : connected[key]) {
+					Integer c = sumConnected[time].get(s);
+					if (c == null) {
+						c = 0;
+					}
+					sumConnected[time].put(s, c + 1);
+				}
+				for (Segment s : permanences[key].keySet()) {
+					Integer c = sumPermanences[time].get(s);
+					if (c == null) {
+						c = 0;
+					}
+					sumPermanences[time].put(s, c + 1);
+				}
+			}
+			if (getLearn(key, time)) {
+				for (Segment s : permanences[key].keySet()) {
+					Integer c = sumLearnConnected[time].get(s);
+					if (c == null) {
+						c = 0;
+					}
+					sumLearnConnected[time].put(s, c + 1);
+				}
 			}
 		}
 	}
@@ -100,6 +156,9 @@ public class Columns {
 				segmentUpdateList[b][c].add(sUpdate);
 			}
 		}
+
+		updateSums();
+
 		for (int b = 0; b < opt.SENSORS; b++) {
 			for (int c = 0; c < opt.NEURON_CELLS; c++) {
 				for (Segment s : segments[b][c]) {
@@ -167,6 +226,9 @@ public class Columns {
 				}
 			}
 		}
+
+		updateSums();
+
 		for (int b = 0; b < opt.SENSORS; b++) {
 			for (int c = 0; c < opt.NEURON_CELLS; c++) {
 				for (Segment s : segments[b][c]) {
@@ -181,13 +243,14 @@ public class Columns {
 	}
 
 	/**
-	 * This function iterates through a list of segmentUpdate's and reinforces each
-	 * segment. For each segmentUpdate element, the following changes are performed. If
-	 * positiveReinforcement is true then synapses on the active list get their permanence
-	 * counts incremented by permanenceInc. All other synapses get their permanence counts
-	 * decremented by permanenceDec. If positiveReinforcement is false, then synapses on
-	 * the active list get their permanence counts decremented by permanenceDec. After
-	 * this step, any synapses in segmentUpdate that do yet exist get added with a
+	 * This function iterates through a list of segmentUpdate's and reinforces
+	 * each segment. For each segmentUpdate element, the following changes are
+	 * performed. If positiveReinforcement is true then synapses on the active
+	 * list get their permanence counts incremented by permanenceInc. All other
+	 * synapses get their permanence counts decremented by permanenceDec. If
+	 * positiveReinforcement is false, then synapses on the active list get
+	 * their permanence counts decremented by permanenceDec. After this step,
+	 * any synapses in segmentUpdate that do yet exist get added with a
 	 * permanence count of initialPerm.
 	 */
 	private void adaptSegments(int bit, int cell, boolean positiveReinforcement) {
@@ -197,8 +260,8 @@ public class Columns {
 				targetSegment = new Segment(bit, cell);
 				segments[bit][cell].add(targetSegment);
 			}
-			HashSet<Integer> connected = targetSegment.connected;
 			HashMap<Integer, Integer> synapses = targetSegment.synapses;
+			
 			HashSet<Integer> updates = new HashSet<Integer>(segmentUpdate.updatedSynapses);
 			if (segmentUpdate.sequenceSegment) {
 				targetSegment.sequenceSegment = true;
@@ -206,62 +269,108 @@ public class Columns {
 			if (positiveReinforcement) {
 				for (Integer s : synapses.keySet()) {
 					if (updates.contains(s)) { // synapses & updates
-						addPermanence(synapses, connected, s);
+//						addPermanence(synapses, connected, s);
+						addPermanence(s, targetSegment);
 						updates.remove(s);
 					} else { // synapses & !updates
-						decPermanence(synapses, connected, s);
+//						decPermanence(synapses, connected, s);
+						decPermanence(s, targetSegment);
 					}
 				}
 				for (Integer key : updates) { // !synapses & updates
-					setPermanence(synapses, connected, key);
+//					setPermanence(synapses, connected, key);
+					setPermanence(key, targetSegment);
 				}
 			} else {
 				for (Integer s : updates) {
 					if (synapses.containsKey(s)) {
-						decPermanence(synapses, connected, s);
+//						decPermanence(synapses, connected, s);
+						decPermanence(s, targetSegment);
 					}
 				}
 			}
 		}
 	}
 
-	private void setPermanence(HashMap<Integer, Integer> possibleSynapses,
-			HashSet<Integer> connectedSynapses, Integer key) {
-		possibleSynapses.put(key, opt.NEURON_PERMANENCE_INITIAL);
+	private void setPermanence(int key, Segment s) {
+		permanences[key].put(s, opt.NEURON_PERMANENCE_INITIAL);
+		s.synapses.put(key, opt.NEURON_PERMANENCE_INITIAL);
+
 		if (opt.NEURON_PERMANENCE_INITIAL > opt.NEURON_PERMANENCE_CONNECTED) {
-			connectedSynapses.add(key);
+			connected[key].add(s);
+			s.connected.add(key);
 		}
 	}
-
-	private void addPermanence(HashMap<Integer, Integer> synapses, HashSet<Integer> connectedSynapses, int key) {
-		Integer perm = synapses.get(key);
+	
+//	private void setPermanence(HashMap<Integer, Integer> possibleSynapses,
+//			HashSet<Integer> connectedSynapses, Integer key) {
+//
+//		possibleSynapses.put(key, opt.NEURON_PERMANENCE_INITIAL);
+//		if (opt.NEURON_PERMANENCE_INITIAL > opt.NEURON_PERMANENCE_CONNECTED) {
+//			connectedSynapses.add(key);
+//		}
+//	}
+	
+	private void addPermanence(int key, Segment s) {
+		Integer perm = permanences[key].get(s);
 		if (perm == null)
 			throw new IllegalStateException("Should use setPermanence on new Synapse");
 		perm = Math.min(perm + opt.NEURON_PERMANENCE_INC, 100);
-		synapses.put(key, perm);
+		permanences[key].put(s, perm);
+		s.synapses.put(key, perm);
 		if (perm > opt.NEURON_PERMANENCE_CONNECTED) {
-			connectedSynapses.add(key);
-		}
+			connected[key].add(s);
+			s.connected.add(key);
+		}		
 	}
 
-	private void decPermanence(HashMap<Integer, Integer> synapses, HashSet<Integer> connected, int key) {
-		Integer perm = synapses.get(key);
+//	private void addPermanence(HashMap<Integer, Integer> synapses,
+//			HashSet<Integer> connectedSynapses, int key) {
+//
+//		Integer perm = synapses.get(key);
+//		if (perm == null)
+//			throw new IllegalStateException("Should use setPermanence on new Synapse");
+//		perm = Math.min(perm + opt.NEURON_PERMANENCE_INC, 100);
+//		synapses.put(key, perm);
+//		if (perm > opt.NEURON_PERMANENCE_CONNECTED) {
+//			connectedSynapses.add(key);
+//		}
+//	}
+	
+	
+	private void decPermanence(int key, Segment s) {
+		Integer perm = permanences[key].get(s);
 		if (perm == null)
 			throw new IllegalStateException("Should use setPermanence on new Synapse");
-		perm = Math.max(perm - opt.NEURON_PERMANENCE_DEC, 0);
-		synapses.put(key, perm);
+		perm = Math.min(perm - opt.NEURON_PERMANENCE_INC, 0);
+		permanences[key].put(s, perm);
+		s.synapses.put(key, perm);
 		if (perm <= opt.NEURON_PERMANENCE_CONNECTED) {
-			connected.remove(key);
-		}
+			connected[key].remove(s);
+			s.connected.remove(key);
+		}		
 	}
 
+//	private void decPermanence(HashMap<Integer, Integer> synapses, HashSet<Integer> connected,
+//			int key) {
+//		Integer perm = synapses.get(key);
+//		if (perm == null)
+//			throw new IllegalStateException("Should use setPermanence on new Synapse");
+//		perm = Math.max(perm - opt.NEURON_PERMANENCE_DEC, 0);
+//		synapses.put(key, perm);
+//		if (perm <= opt.NEURON_PERMANENCE_CONNECTED) {
+//			connected.remove(key);
+//		}
+//	}
+
 	/**
-	 * For the given column c cell i at time t, find the segment with the largest number
-	 * of active synapses. This routine is aggressive in finding the best match. The
-	 * permanence value of synapses is allowed to be below connectedPerm. The number of
-	 * active synapses is allowed to be below activationThreshold, but must be above
-	 * minThreshold. The routine returns the segment index. If no segments are found, then
-	 * an index of -1 is returned.
+	 * For the given column c cell i at time t, find the segment with the
+	 * largest number of active synapses. This routine is aggressive in finding
+	 * the best match. The permanence value of synapses is allowed to be below
+	 * connectedPerm. The number of active synapses is allowed to be below
+	 * activationThreshold, but must be above minThreshold. The routine returns
+	 * the segment index. If no segments are found, then an index of -1 is
+	 * returned.
 	 */
 	private Segment getBestMatchingSegment(int bit, int cell, int time) {
 		int pretender_size = opt.NEURON_MIN_THRESHOLD;
@@ -278,24 +387,28 @@ public class Columns {
 	}
 
 	/**
-	 * This routine returns true if the number of connected synapses on segment s that are
-	 * active due to the given state at time t is greater than activationThreshold. The
-	 * parameter state can be activeState, or learnState.
+	 * This routine returns true if the number of synapses on segment s that are
+	 * active due to the given state at time t is greater than
+	 * activationThreshold. The parameter state can be activeState, or
+	 * learnState.
 	 */
 	private int getActiveSize(Segment segment, int time) {
-		int count = 0;
-		for (Integer synapse : segment.synapses.keySet()) {
-			if (getActive(synapse, time)) {
-				count += 1;
-			}
-		}
-		return count;
+		Integer value = sumPermanences[time].get(segment);
+		return (value == null) ? 0 : value;
+
+		// int count = 0;
+		// for (Integer synapse : segment.synapses.keySet()) {
+		// if (getActive(synapse, time)) {
+		// count += 1;
+		// }
+		// }
+		// return count;
 	}
 
 	/**
-	 * For the given column, return the cell with the best matching segment (as defined in
-	 * {@code getBestMatchingSegment}. If no cell has a matching segment, then return the
-	 * cell with the fewest number of segments.
+	 * For the given column, return the cell with the best matching segment (as
+	 * defined in {@code getBestMatchingSegment}. If no cell has a matching
+	 * segment, then return the cell with the fewest number of segments.
 	 */
 	private Segment getBestMatchingCell(int bit, int time) {
 		int champion_size = opt.NEURON_MIN_THRESHOLD;
@@ -332,14 +445,14 @@ public class Columns {
 	}
 
 	/**
-	 * Return a segmentUpdate data structure containing a list of proposed changes to
-	 * segment s. Let activeSynapses be the list of active synapses where the originating
-	 * cells have their activeState output = 1 at time step t. (This list is empty if s =
-	 * -1 since the segment doesn't exist.) newSynapses is an optional argument that
-	 * defaults to false. If newSynapses is true, then newSynapseCount -
-	 * count(activeSynapses) synapses are added to activeSynapses. These synapses are
-	 * randomly chosen from the set of cells that have learnState output = 1 at time step
-	 * t.
+	 * Return a segmentUpdate data structure containing a list of proposed
+	 * changes to segment s. Let activeSynapses be the list of active synapses
+	 * where the originating cells have their activeState output = 1 at time
+	 * step t. (This list is empty if s = -1 since the segment doesn't exist.)
+	 * newSynapses is an optional argument that defaults to false. If
+	 * newSynapses is true, then newSynapseCount - count(activeSynapses)
+	 * synapses are added to activeSynapses. These synapses are randomly chosen
+	 * from the set of cells that have learnState output = 1 at time step t.
 	 */
 	private SegmentUpdate getSegmentActiveSynapses(Segment segment, int time, boolean newSynapses) {
 		SegmentUpdate update = new SegmentUpdate();
@@ -358,7 +471,8 @@ public class Columns {
 		int to_add = opt.NEURON_NEW_SYNAPSES - update.updatedSynapses.size();
 		ArrayList<Integer> choices = learningCells[time];
 		if (to_add > 0) {
-			Collection<Integer> samples = Utils.sample(choices.size(), Math.min(to_add, choices.size()));
+			Collection<Integer> samples = Utils.sample(choices.size(), Math.min(to_add, choices
+					.size()));
 			for (int index : samples) {
 				Integer proto = choices.get(index);
 				update.updatedSynapses.add(proto);
@@ -368,42 +482,54 @@ public class Columns {
 	}
 
 	/**
-	 * This routine returns true if the number of connected synapses on segment s that are
-	 * active due to the given state at time t is greater than activationThreshold. The
-	 * parameter state can be activeState, or learnState.
+	 * This routine returns true if the number of connected synapses on segment
+	 * s that are active due to the given state at time t is greater than
+	 * activationThreshold. The parameter state can be activeState, or
+	 * learnState.
 	 */
 	private int getActiveSizeOfConnectedSynapses(Segment segment, int time) {
+		Integer value = sumConnected[time].get(segment);
+		return (value == null) ? 0 : value;
+
 		// if (segment.activeSizeConnected[time] != -1)
 		// return segment.activeSizeConnected[time];
-		int count = 0;
-		for (Integer synapse : segment.connected) {
-			if (getActive(synapse, time)) {
-				count += 1;
-			}
-		}
+		// int count = 0;
+		// for (Integer synapse : segment.connected) {
+		// if (getActive(synapse, time)) {
+		// count += 1;
+		// }
+		// }
 		// segment.activeSizeConnected[time] = count;
-		return count;
+		// return count;
 	}
 
 	/**
-	 * This routine returns true if the number of connected synapses on segment s that are
-	 * active due to the given state at time t is greater than activationThreshold. The
-	 * parameter state can be activeState, or learnState.
+	 * This routine returns true if the number of connected synapses on segment
+	 * s that are active due to the given state at time t is greater than
+	 * activationThreshold. The parameter state can be activeState, or
+	 * learnState.
 	 */
 	private int getLearnActiveSize(Segment segment, int time) {
-		int count = 0;
-		for (Integer synapse : segment.connected) {
-			if (getLearn(synapse, time)) {
-				count += 1;
-			}
-		}
-		return count;
+		Integer learn = sumLearnConnected[time].get(segment);
+		return (learn == null) ? 0 : learn;
 	}
 
+//	private int getLearnActiveSize(Segment segment, int time) {
+//		int count = 0;
+//		
+//		for (Integer synapse : segment.connected) {
+//			if (getLearn(synapse, time)) {
+//				count += 1;
+//			}
+//		}
+//		return count;
+//	}
+
 	/**
-	 * For the given column c cell i, return a segment index such that segmentActive(s,t,
-	 * state) is true. If multiple segments are active, sequence segments are given
-	 * preference. Otherwise, segments with most activity are given preference.
+	 * For the given column c cell i, return a segment index such that
+	 * segmentActive(s,t, state) is true. If multiple segments are active,
+	 * sequence segments are given preference. Otherwise, segments with most
+	 * activity are given preference.
 	 */
 	private Segment getActiveSegment(int bit, int cell, int time) {
 		Segment pretender = null;
@@ -478,15 +604,17 @@ public class Columns {
 	}
 
 	public boolean getActive(int synapse, int time) {
-		return active[smap.s2bit(synapse)][smap.s2cell(synapse)][time];
+		return active[synapse][time];
 	}
 
 	public boolean getActive(int bit, int cell, int time) {
-		return active[bit][cell][time];
+		int synapse = smap.bc2s(bit, cell);
+		return active[synapse][time];
 	}
 
 	private void setActive(int bit, int cell, int time, boolean value) {
-		active[bit][cell][time] = value;
+		int synapse = smap.bc2s(bit, cell);
+		active[synapse][time] = value;
 	}
 
 	public boolean getPredicted(int bit, int cell, int time) {
