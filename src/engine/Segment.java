@@ -22,7 +22,7 @@ public class Segment {
 
 	@Override
 	public String toString() {
-		return "seq=" + sequenceSegment + "\nbit=" + bit + "\ncell=" + cell + "\nconn=" + connected
-				+ "\nsyn=" + synapses;
+		return "\nS<b:" + bit + ",c:" + cell + ",seq:" + sequenceSegment + "; conn:" + connected.size()
+				+ ",syn:" + synapses.size()+">";
 	}
 }

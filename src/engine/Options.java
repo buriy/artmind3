@@ -12,6 +12,7 @@ import util.IntOption;
 public class Options {
 	public static final int DEBUG_STRIP = 52;
 
+	public boolean REMOVE_ZERO_CONNECTIONS = false;
 	public boolean SUPERVISOR_SIGNAL = false;
 	public boolean SEQUENTIAL_LEARNING = false;
 	public int ROUND_TIME = 10 * 10 * 30;
@@ -47,7 +48,7 @@ public class Options {
 	public int NEURON_PERMANENCE_INITIAL = 20;
 
 	@IntOption(min = 16, max = 1024)
-	public int SENSORS = 1024;
+	public int SENSORS = 256;
 
 	@IntOption(min = 1, max = 25)
 	public int SENSORS_RADIUS = 4;

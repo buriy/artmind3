@@ -28,10 +28,14 @@ public class InnerNode extends Node {
 	
 	@Override
 	public NetState operate() {
-		NetState state;
+		NetState state = NetState.LEARNING;
 		if (learnTime < opt.learnTime()) {
 			int[] bits = sensors.learn();
 			incLearnTime();
+			output.reset();
+			for(int b: bits){
+				output.set(b, 0, 255);
+			}
 			state = neurons.learn(bits);
 			if (layer == 1) {
 				state = NetState.LEARNING;
