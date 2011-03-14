@@ -14,6 +14,7 @@ public class Options {
 
 	public boolean REMOVE_ZERO_CONNECTIONS = false;
 	public boolean SUPERVISOR_SIGNAL = false;
+	public boolean REVERSE_CONNECTIONS = false;
 	public boolean SEQUENTIAL_LEARNING = false;
 	public int ROUND_TIME = 10 * 10 * 30;
 

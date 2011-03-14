@@ -109,11 +109,15 @@ public abstract class Sensor {
 	public void sumOverField(int[] values, Field input, double weight) {
 		SensorZone zone = getZoneForField(input);
 		for (int i = 0; i < input.size(); i++) {
-			values[i] += zone.getPermanence(i) * weight;
+			values[i] += (zone.getPermanence(i)>=opt.SENSOR_PERMANENCE_CONNECTED?100:0) * weight;
 		}
 	}
 
 	public int distanceTo(Sensor rhs) {
 		return 0;
+	}
+
+	public float getRadius() {
+		return opt.SENSORS_RADIUS;
 	}
 }

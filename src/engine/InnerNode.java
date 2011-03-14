@@ -16,7 +16,7 @@ public class InnerNode extends Node {
 		this.layer = layer;
 		this.neurons = new Columns(opt, output, layer);
 		if (layer == 0) {
-			this.sensors = new ZoneSensors(opt, input);
+			this.sensors = new AdaptiveSensors(opt, input);
 		} else {
 			this.sensors = new FieldSensors(opt, input);
 		}
@@ -65,7 +65,7 @@ public class InnerNode extends Node {
 	@Override
 	public String toString() {
 		int[] active = firedSensors();
-		return sensors.restoreWinners(active, input);
+		return input.toString() + " -> \n" + sensors.restoreWinners(active, input);
 	}
 
 	private int[] firedSensors() {

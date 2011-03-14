@@ -25,8 +25,10 @@ public class Network {
 			input_layer = fields[layer];
 		}
 
-		for(int layer = 1; layer < options.LAYERS; layer++){
-			nodes[layer-1].addSecondaryInput(fields[layer]);
+		if(opt.REVERSE_CONNECTIONS){
+			for(int layer = 1; layer < options.LAYERS; layer++){
+				nodes[layer-1].addSecondaryInput(fields[layer]);
+			}
 		}
 
 		this.output = new StringField();

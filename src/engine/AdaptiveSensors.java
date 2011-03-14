@@ -5,24 +5,24 @@ import java.util.Comparator;
 
 import util.Utils;
 
-public class ZoneSensors extends FieldSensors {
+public class AdaptiveSensors extends FieldSensors {
 	protected ArrayList<Integer>[] nearest;
 
 	@SuppressWarnings("unchecked")
-	public ZoneSensors(Options opt, Field field) {
+	public AdaptiveSensors(Options opt, Field field) {
 		super(opt, field);
 		int count = opt.SENSORS;
 		nearest = new ArrayList[count];
-		for (int i = 0; i < opt.SENSORS; ++i) {
-			nearest[i] = findNearest(sensors[i]);
+		for (int sid = 0; sid < count; sid++) {
+			nearest[sid] = findNearest(sensors[sid]);
 		}
 	}
 
 	protected void createSensors(Field field) {
 		this.fields.add(field);
-		sensors = new ZoneSensor[opt.SENSORS];
+		sensors = new AdaptiveSensor[opt.SENSORS];
 		for (int i = 0; i < opt.SENSORS; ++i) {
-			sensors[i] = new ZoneSensor(opt, field);
+			sensors[i] = new AdaptiveSensor(opt, field);
 		}
 	}
 

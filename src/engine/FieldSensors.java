@@ -16,6 +16,18 @@ public class FieldSensors implements Sensors {
 		createSensors(field);
 	}
 
+	protected ArrayList<Integer> findNearest(Sensor sensor) {
+		double rd = sensor.getRadius() * opt.SENSORS_ZONE_DISTANCE + 1e-8;
+		int rd2 = (int) (rd * rd);
+		ArrayList<Integer> nearest = new ArrayList<Integer>();
+		for (int j = 0; j < opt.SENSORS; j++) {
+			if (sensor.distanceTo(sensors[j]) < rd2) {
+				nearest.add(j);
+			}
+		}
+		return nearest;
+	}
+
 	protected void createSensors(Field field) {
 		this.fields.add(field);
 		this.sensors = new FieldSensor[opt.SENSORS];
